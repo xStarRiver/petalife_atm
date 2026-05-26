@@ -1,13 +1,18 @@
-require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
+if (fs.existsSync(path.join(__dirname, '.env.local'))) {
+    require('dotenv').config({ path: path.join(__dirname, '.env.local') });
+} else {
+    require('dotenv').config();
+}
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
-const path = require('path');
 const printer = require('./printer_helper');
 
 // DynamoDB client initialization with graceful fallback
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, QueryCommand, GetCommand } = require("@aws-sdk/lib-dynamodb");
+const { DynamoDBDocumentClient, QueryCommand, GetCommand, ScanCommand } = require("@aws-sdk/lib-dynamodb");
 
 let ddbDocClient = null;
 const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
@@ -211,6 +216,30 @@ async function fetchCompleteUserProfile(scannedId) {
         let stoolType = "Type 4";
         let condition = "Healthy";
         let latestStoolItem = null;
+        let hasEnrollment = false;
+
+        // Step 0: Scan petalife-okr1-enrollments to get userId and petId
+        try {
+            console.log(`[AWS Enrollments] Searching enrollment details...`);
+            const enrollRes = await ddbDocClient.send(new ScanCommand({
+                TableName: "petalife-okr1-enrollments",
+                FilterExpression: "enrollmentId = :enrollmentId",
+                ExpressionAttributeValues: {
+                    ":enrollmentId": scannedId
+                }
+            }));
+            if (enrollRes.Items && enrollRes.Items.length > 0) {
+                const enrollment = enrollRes.Items[0];
+                userId = enrollment.userId || null;
+                petId = enrollment.petId || null;
+                hasEnrollment = true;
+                if (enrollment.petName) petName = enrollment.petName;
+                if (enrollment.petBreed) petBreed = enrollment.petBreed;
+                console.log(`[AWS Enrollments] Found enrollment. userId: "${userId}", petId: "${petId}", petName: "${petName}"`);
+            }
+        } catch (e) {
+            console.error(`[AWS Enrollments Error]`, e.message);
+        }
 
         // Step 1: Query latest stool record from petalife-okr1-stool-records (filtering out cached insights)
         try {
@@ -228,8 +257,8 @@ async function fetchCompleteUserProfile(scannedId) {
             
             if (stoolRes.Items && stoolRes.Items.length > 0) {
                 latestStoolItem = stoolRes.Items[0];
-                userId = latestStoolItem.userId;
-                petId = latestStoolItem.petId;
+                userId = latestStoolItem.userId || userId;
+                petId = latestStoolItem.petId || petId;
                 trackingDay = latestStoolItem.dayNumber || 1;
                 progress = latestStoolItem.dayNumber || 1;
                 
@@ -238,6 +267,8 @@ async function fetchCompleteUserProfile(scannedId) {
                     condition = latestStoolItem.analysisResult.colorLabel || "Healthy";
                 }
                 console.log(`[AWS Stool Records] Found stool entry. userId: "${userId}", petId: "${petId}", trackingDay: ${trackingDay}`);
+            } else {
+                console.log(`[AWS Stool Records] No stool records found for enrollmentId: "${scannedId}"`);
             }
         } catch (e) {
             console.error(`[AWS Stool Records Error]`, e.message);
@@ -252,8 +283,8 @@ async function fetchCompleteUserProfile(scannedId) {
                     Key: { ID: petId }
                 }));
                 if (petRes.Item) {
-                    petName = petRes.Item.petName || "Mochi";
-                    petBreed = petRes.Item.breed ? petRes.Item.breed.replace("dogBreed.", "").replace("catBreed.", "").toUpperCase() : "Poodle";
+                    petName = petRes.Item.petName || petName || "Mochi";
+                    petBreed = petRes.Item.breed ? petRes.Item.breed.replace("dogBreed.", "").replace("catBreed.", "").toUpperCase() : (petBreed || "Poodle");
                     petCategory = petRes.Item.selectedPet || "dog";
                     console.log(`[AWS Pet Profile] Found pet name: "${petName}", breed: "${petBreed}", category: "${petCategory}"`);
                 }
@@ -279,14 +310,14 @@ async function fetchCompleteUserProfile(scannedId) {
             }
         }
 
-        // Compile aggregate profile if we loaded at least a stool record, user, or pet
-        if (userId || petId || latestStoolItem) {
+        // Compile aggregate profile if we loaded at least a stool record, user, pet, or found an enrollment
+        if (userId || petId || latestStoolItem || hasEnrollment) {
             const displayIdVal = userId ? userId.substring(0, 6).toUpperCase() : scannedId.substring(0, 6).toUpperCase();
             
             return {
                 id: scannedId,
                 displayId: displayIdVal,
-                name: petName + "'s Parent",
+                name: petName ? (petName + "'s Parent") : "Member Parent",
                 email: "member@petalife.com",
                 tier: "Gold Elite",
                 points: points,
