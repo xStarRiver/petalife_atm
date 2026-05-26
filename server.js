@@ -446,3 +446,5 @@ server.listen(PORT, () => {
     console.log(` Mode:                 ${printer.isMock ? 'MOCK PRINTER MODE' : 'HARDWARE DLL MODE'}`);
     console.log(`================================================================`);
 });
+
+module.exports = app;
