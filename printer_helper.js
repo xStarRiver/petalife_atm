@@ -251,6 +251,7 @@ function printReceipt(user) {
         console.log('            便便銀行 | POOP BANK');
         console.log('              DEPOSIT RECEIPT');
         console.log('--------------------------------------------------');
+        console.log(`Username  : ${user.name || '---'}`);
         console.log(`User ID   : ${displayId}`);
         console.log(`Pet Name  : ${petName}`);
         console.log(`Category  : ${petCategory.toUpperCase()}`);
@@ -291,9 +292,9 @@ function printReceipt(user) {
         PrintTextS(printerHandle, "DEPOSIT RECEIPT\n");
         PrintTextS(printerHandle, "================================\n");
         SetTextBold(printerHandle, 0);
-
         // Meta Info
         SetAlign(printerHandle, 0); // Left
+        PrintTextS(printerHandle, `Username  : ${user.name || '---'}\n`);
         PrintTextS(printerHandle, `User ID   : ${displayId}\n`);
         PrintTextS(printerHandle, `Pet Name  : ${petName}\n`);
         PrintTextS(printerHandle, `Category  : ${petCategory.toUpperCase()}\n`);

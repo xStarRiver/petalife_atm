@@ -219,6 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
             hour12: false 
         }).replace(/\//g, '-');
         
+        const rNameEl = document.getElementById('rName');
+        if (rNameEl) rNameEl.textContent = user.name || '---';
+
         const rDateEl = document.getElementById('rDate');
         if (rDateEl) rDateEl.textContent = dateStr;
 
