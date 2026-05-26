@@ -1,0 +1,1355 @@
+/* -------------------------------------------------------------
+ * PETALIFE ATM - RETRO 8-BIT LIGHT MODE CSS
+ * A Premium, Highly Immersive Pixel Art Aesthetic Kiosk System
+ * ------------------------------------------------------------- */
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+:root {
+    --pixel-bg-body: #f4eee1; /* Warm light sand */
+    --pixel-bg-card: #ffffff; /* Crisp white */
+    --pixel-charcoal: #252422; /* High contrast dark charcoal */
+    --pixel-accent: #00b894; /* Emerald green */
+    --pixel-accent-rgb: 0, 184, 148;
+    --pixel-blue: #0984e3; /* Classic retro blue */
+    --pixel-yellow: #fdcb6e; /* Golden-yellow */
+    --pixel-red: #d63031; /* Bright retro red */
+    --font-heading: 'Press Start 2P', monospace;
+    --font-body: 'VT323', monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    image-rendering: pixelated; /* Ensures browser scales graphics sharply */
+}
+
+body {
+    background-color: var(--pixel-bg-body);
+    font-family: var(--font-body);
+    color: var(--pixel-charcoal);
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    font-size: 1.5rem; /* Larger font size since VT323 is compressed */
+}
+
+/* Big Grid Background Overlay for absolute pixel vibes */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: 
+        linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+    background-size: 16px 16px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Primary Container Frame */
+.kiosk-pixel-container {
+    width: 100%;
+    max-width: 1200px;
+    height: 90vh;
+    max-height: 800px;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    position: relative;
+}
+
+/* Pixel Header */
+.pixel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border: 4px solid var(--pixel-charcoal);
+    background-color: var(--pixel-bg-card);
+    box-shadow: 6px 6px 0 var(--pixel-charcoal);
+    margin-bottom: 24px;
+    z-index: 5;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-pixel-icon {
+    font-size: 1.8rem;
+    color: var(--pixel-accent);
+}
+
+.logo-pixel-text {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.logo-pixel-text .accent-color {
+    color: var(--pixel-blue);
+}
+
+.header-status-group {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+/* Pixel Clock */
+.pixel-clock {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    background: #eae3d2;
+    border: 3px solid var(--pixel-charcoal);
+    padding: 6px 14px;
+    letter-spacing: 0.5px;
+}
+
+/* Status Pill */
+.pixel-status-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 3px solid var(--pixel-charcoal);
+    padding: 6px 16px;
+    background: #eae3d2;
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.pixel-status-indicator {
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--pixel-charcoal);
+    display: inline-block;
+}
+
+.pixel-status-indicator.green {
+    background-color: var(--pixel-accent);
+}
+
+.pixel-status-indicator.red {
+    background-color: var(--pixel-red);
+}
+
+.pixel-status-indicator.yellow {
+    background-color: var(--pixel-yellow);
+}
+
+/* Gear Icon Button */
+.pixel-btn-icon {
+    background: var(--pixel-bg-card);
+    border: 3px solid var(--pixel-charcoal);
+    color: var(--pixel-charcoal);
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: 3px 3px 0 var(--pixel-charcoal);
+    transition: none; /* Instant pixel button action */
+}
+
+.pixel-btn-icon:hover {
+    background-color: #eae3d2;
+}
+
+.pixel-btn-icon:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--pixel-charcoal);
+}
+
+/* Pixel Screen Card Viewport */
+.pixel-screen-viewport {
+    flex-grow: 1;
+    position: relative;
+}
+
+.pixel-screen-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--pixel-bg-card);
+    border: 5px solid var(--pixel-charcoal);
+    box-shadow: 8px 8px 0 var(--pixel-charcoal);
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+}
+
+.pixel-screen-card.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.pixel-screen-content {
+    padding: 30px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Idle Screen Specific elements */
+.pixel-instruction-block {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.pixel-badge {
+    display: inline-block;
+    background-color: var(--pixel-yellow);
+    border: 3px solid var(--pixel-charcoal);
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 4px 14px;
+    margin-bottom: 12px;
+    box-shadow: 2px 2px 0 var(--pixel-charcoal);
+}
+
+.pixel-instruction-block h1 {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+}
+
+.pixel-instruction-block p {
+    color: var(--pixel-charcoal);
+    font-size: 1.4rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* QR Code Section */
+.pixel-qr-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.pixel-qr-border {
+    background: white;
+    padding: 12px;
+    border: 4px solid var(--pixel-charcoal);
+    box-shadow: 6px 6px 0 var(--pixel-charcoal);
+}
+
+#qrcode img {
+    display: block;
+    width: 180px;
+    height: 180px;
+}
+
+.pixel-waiting-indicator {
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    color: var(--pixel-charcoal);
+}
+
+/* Scanner Zone */
+.pixel-scanner-zone {
+    margin-top: 20px;
+    background-color: #eae3d2;
+    border: 3px dashed var(--pixel-charcoal);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--font-heading);
+    font-size: 0.62rem;
+    line-height: 1.4;
+    max-width: 480px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Sweep laser line animation */
+.pixel-scanner-zone::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: var(--pixel-red);
+    box-shadow: 0 0 6px var(--pixel-red);
+    animation: scannerLaserSweep 2s infinite steps(20) ease-in-out;
+    opacity: 0.7;
+}
+
+@keyframes scannerLaserSweep {
+    0%, 100% { top: 0%; }
+    50% { top: calc(100% - 4px); }
+}
+
+.scanner-icon {
+    font-size: 2.2rem;
+    color: var(--pixel-charcoal);
+    animation: pulseScan 1.5s infinite alternate steps(4);
+}
+
+@keyframes pulseScan {
+    0% { transform: scale(0.95); }
+    100% { transform: scale(1.05); }
+}
+
+/* Tip link box */
+.pixel-tip-box {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #eae3d2;
+    border: 3px solid var(--pixel-charcoal);
+    padding: 8px 16px;
+    font-size: 1.15rem;
+}
+
+.pixel-tip-box a {
+    color: var(--pixel-blue);
+    font-weight: 800;
+    text-decoration: underline;
+}
+
+.pixel-tip-box a:hover {
+    color: var(--pixel-charcoal);
+}
+
+/* Active Receipt Layout Centered */
+.receipt-centered-layout {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 10px;
+    gap: 15px;
+}
+
+/* Custom scroll for receipt screen content to handle long rolling paper */
+#receiptScreen {
+    overflow: hidden;
+}
+
+#receiptScreen .pixel-screen-content {
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+#receiptScreen .pixel-screen-content::-webkit-scrollbar {
+    width: 12px;
+}
+#receiptScreen .pixel-screen-content::-webkit-scrollbar-track {
+    background: #eae3d2;
+    border-left: 4px solid var(--pixel-charcoal);
+}
+#receiptScreen .pixel-screen-content::-webkit-scrollbar-thumb {
+    background: var(--pixel-yellow);
+    border: 3px solid #eae3d2;
+    box-shadow: inset -2px -2px 0 var(--pixel-charcoal), inset 2px 2px 0 white;
+}
+
+/* Horizontal Actions buttons row */
+.pixel-actions-row {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    width: 100%;
+    max-width: 400px;
+    justify-content: center;
+    margin-top: 16px;
+    padding-bottom: 12px;
+    flex-shrink: 0;
+}
+
+.pixel-actions-row .pixel-btn {
+    flex: 1;
+}
+
+/* Left details area */
+.pixel-details-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+
+.pixel-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #eae3d2;
+    border: 4px solid var(--pixel-charcoal);
+    padding: 16px;
+    box-shadow: 4px 4px 0 var(--pixel-charcoal);
+}
+
+.profile-pixel-avatar-border {
+    border: 3px solid var(--pixel-charcoal);
+    background: white;
+    padding: 2px;
+    width: 60px;
+    height: 60px;
+}
+
+.pixel-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-pixel-info h3 {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+}
+
+.tier-badge {
+    background: var(--pixel-yellow);
+    box-shadow: 2px 2px 0 var(--pixel-charcoal);
+}
+
+/* Hardware Info Block */
+.pixel-hardware-summary {
+    border: 4px solid var(--pixel-charcoal);
+    background: var(--pixel-bg-card);
+    padding: 16px;
+    box-shadow: 4px 4px 0 var(--pixel-charcoal);
+}
+
+.pixel-hardware-summary h3 {
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    color: var(--pixel-blue);
+    margin-bottom: 12px;
+}
+
+.pixel-hw-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.pixel-hw-row .state-val {
+    color: var(--pixel-accent);
+}
+
+/* Solid pixelated Buttons */
+.pixel-actions-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pixel-btn {
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    font-weight: 800;
+    padding: 16px 20px;
+    border: 4px solid var(--pixel-charcoal);
+    box-shadow: 4px 4px 0 var(--pixel-charcoal);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: white;
+}
+
+.pixel-btn:hover {
+    background: #eae3d2;
+}
+
+.pixel-btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 var(--pixel-charcoal);
+}
+
+.btn-primary {
+    background-color: var(--pixel-accent) !important;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+}
+
+.btn-action-print {
+    background-color: var(--pixel-yellow) !important;
+    color: var(--pixel-charcoal) !important;
+}
+
+.btn-action-print:hover {
+    filter: brightness(1.1);
+}
+
+.btn-action-reset {
+    background-color: #eae3d2 !important;
+}
+
+.btn-danger {
+    background-color: var(--pixel-red) !important;
+    color: white !important;
+}
+
+/* Mechanical Printer Box & Print slide out */
+.pixel-printer-preview-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.pixel-printer-device {
+    position: relative;
+    width: 320px;
+    z-index: 10;
+}
+
+.printer-device-body {
+    background-color: #d1c7bd;
+    border: 4px solid var(--pixel-charcoal);
+    border-radius: 8px 8px 0 0;
+    padding: 12px 16px;
+    position: relative;
+    box-shadow: 4px 0 0 var(--pixel-charcoal), -4px 0 0 var(--pixel-charcoal);
+    z-index: 20;
+}
+
+/* Mechanical Jitter vibrating class */
+.printer-device-body.jittering {
+    animation: mechanicalJitter 0.08s infinite steps(2);
+}
+
+@keyframes mechanicalJitter {
+    0% { transform: translate(1px, -1px); }
+    50% { transform: translate(-1px, 1px); }
+    100% { transform: translate(0, 0); }
+}
+
+.printer-feed-rollers {
+    height: 8px;
+    background-color: var(--pixel-charcoal);
+    margin-bottom: 6px;
+}
+
+.printer-mouth-top {
+    height: 4px;
+    background-color: #a4998e;
+}
+
+/* Dark slot where paper exits */
+.printer-mouth-slot {
+    height: 12px;
+    background-color: var(--pixel-charcoal);
+    border: 2px solid #5a544d;
+    margin-top: 4px;
+}
+
+/* Paper slide expansion rolling wrapper */
+.receipt-paper-roll-wrapper {
+    overflow: hidden;
+    max-height: 0px; /* Initially hidden */
+    z-index: 5;
+    position: relative;
+    top: -4px;
+    border-left: 4px solid var(--pixel-charcoal);
+    border-right: 4px solid var(--pixel-charcoal);
+    box-shadow: 4px 4px 0 var(--pixel-charcoal);
+}
+
+/* Active Rolling Print Animation class */
+.receipt-paper-roll-wrapper.rolling-active {
+    animation: steppedRollOut 2.5s steps(28) forwards;
+}
+
+@keyframes steppedRollOut {
+    0% {
+        max-height: 0px;
+    }
+    100% {
+        max-height: 520px; /* Full receipt display */
+    }
+}
+
+/* The Retro Paper Receipt Card */
+.pixel-paper-receipt {
+    width: 100%;
+    background-color: #ffffff;
+    font-family: var(--font-body);
+    font-size: 1.25rem;
+    line-height: 1.3;
+    padding: 20px 16px 8px 16px;
+    color: var(--pixel-charcoal);
+}
+
+.receipt-pixel-header {
+    text-align: center;
+}
+
+.font-logo {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+}
+
+.receipt-pixel-header h3 {
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    margin-bottom: 4px;
+}
+
+.receipt-pixel-header p {
+    font-size: 1.05rem;
+    color: #6b7280;
+}
+
+.pixel-divider-dotted {
+    border-bottom: 4px dotted var(--pixel-charcoal);
+    margin: 8px 0;
+}
+
+.receipt-pixel-meta p {
+    margin: 2px 0;
+}
+
+.receipt-sub-title {
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    color: var(--pixel-blue);
+    margin-bottom: 6px;
+}
+
+.pet-item {
+    margin-bottom: 6px;
+    padding-left: 6px;
+    border-left: 3px solid var(--pixel-charcoal);
+}
+
+.receipt-pixel-footer {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.pixel-barcode-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.pixel-barcode {
+    display: flex;
+    height: 36px;
+    width: 140px;
+    justify-content: space-between;
+}
+
+.pixel-barcode span {
+    background-color: var(--pixel-charcoal);
+    width: 3px;
+    height: 100%;
+}
+
+.pixel-barcode span:nth-child(even) { width: 5px; }
+.pixel-barcode span:nth-child(3n) { width: 2px; }
+.pixel-barcode span:nth-child(5n) { width: 8px; }
+
+.pixel-barcode-label {
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+}
+
+.pixel-qr-wrapper {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.pixel-qr-wrapper canvas, .pixel-qr-wrapper img {
+    width: 76px !important;
+    height: 76px !important;
+}
+
+/* Beautiful Jagged Pixelated Cut bottom edge */
+.pixel-receipt-cut-edge {
+    height: 8px;
+    background-image: 
+        linear-gradient(135deg, transparent 40%, #ffffff 40%, #ffffff 60%, transparent 60%),
+        linear-gradient(45deg, transparent 40%, #ffffff 40%, #ffffff 60%, transparent 60%);
+    background-size: 8px 8px;
+    background-repeat: repeat-x;
+    position: relative;
+    width: calc(100% + 32px); /* extends over margins */
+    left: -16px;
+    bottom: -8px;
+    z-index: 10;
+}
+
+/* Retro Pixel Modal Overlay */
+.pixel-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.pixel-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.pixel-modal-card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--pixel-bg-card);
+    border: 5px solid var(--pixel-charcoal);
+    box-shadow: 8px 8px 0 var(--pixel-charcoal);
+    transform: translateY(-20px);
+    transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+
+.pixel-modal-overlay.active .pixel-modal-card {
+    transform: translateY(0);
+}
+
+.pixel-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 4px solid var(--pixel-charcoal);
+    background-color: #eae3d2;
+}
+
+.pixel-modal-header h3 {
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    color: var(--pixel-blue);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pixel-modal-close {
+    background: none;
+    border: none;
+    color: var(--pixel-charcoal);
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.pixel-modal-body {
+    padding: 20px;
+}
+
+.pixel-form-group {
+    margin-bottom: 16px;
+}
+
+.pixel-form-group.row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.pixel-form-group label {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 0.62rem;
+    font-weight: bold;
+    color: var(--pixel-charcoal);
+    margin-bottom: 8px;
+}
+
+.pixel-select, .pixel-input {
+    width: 100%;
+    padding: 10px 12px;
+    background: white;
+    border: 3px solid var(--pixel-charcoal);
+    color: var(--pixel-charcoal);
+    font-family: var(--font-body);
+    font-size: 1.3rem;
+    outline: none;
+}
+
+.pixel-select:focus, .pixel-input:focus {
+    background: #eae3d2;
+}
+
+select.pixel-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black' width='24px' height='24px'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 32px;
+}
+
+.pixel-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+.pixel-input-row select {
+    flex-grow: 1;
+}
+
+.pixel-help-text {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin-top: 4px;
+    display: block;
+}
+
+.pixel-divider {
+    border-bottom: 3px solid var(--pixel-charcoal);
+    margin: 16px 0;
+}
+
+.pixel-status-block {
+    margin-bottom: 16px;
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+}
+
+.pixel-status-label {
+    color: var(--pixel-charcoal);
+}
+
+.pixel-status-value.connected {
+    color: var(--pixel-accent);
+}
+
+.pixel-status-value.disconnected {
+    color: var(--pixel-red);
+}
+
+.pixel-modal-footer-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* Pixel Toast Notifications */
+.pixel-toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pixel-toast {
+    background: white;
+    border: 3px solid var(--pixel-charcoal);
+    box-shadow: 4px 4px 0 var(--pixel-charcoal);
+    color: var(--pixel-charcoal);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-body);
+    font-size: 1.3rem;
+    min-width: 260px;
+    animation: pixelToastSlide 0.2s steps(8) forwards;
+}
+
+.pixel-toast.success { border-left: 8px solid var(--pixel-accent); }
+.pixel-toast.error { border-left: 8px solid var(--pixel-red); }
+.pixel-toast.info { border-left: 8px solid var(--pixel-blue); }
+
+@keyframes pixelToastSlide {
+    0% { transform: translateX(100px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+}
+
+/* Printing Overlay Block */
+.pixel-print-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(244, 238, 225, 0.9);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.pixel-print-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.pixel-print-box {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    border: 5px solid var(--pixel-charcoal);
+    box-shadow: 8px 8px 0 var(--pixel-charcoal);
+    padding: 30px;
+    max-width: 380px;
+}
+
+.pixel-print-icon {
+    font-size: 3.5rem;
+    color: var(--pixel-blue);
+    animation: mechanicalJitter 0.1s infinite steps(2);
+}
+
+.pixel-paper-feed-strip {
+    width: 64px;
+    height: 0px;
+    background: #eae3d2;
+    border: 2px solid var(--pixel-charcoal);
+    margin-top: 8px;
+    animation: pixelPaperFeed 1.2s infinite steps(10);
+}
+
+@keyframes pixelPaperFeed {
+    0% { height: 0; }
+    80% { height: 30px; }
+    100% { height: 30px; opacity: 0; }
+}
+
+.pixel-print-box h2 {
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    margin-top: 16px;
+    letter-spacing: -0.5px;
+}
+
+.pixel-print-box p {
+    font-size: 1.25rem;
+    color: #6b7280;
+    margin-top: 8px;
+}
+
+/* -------------------------------------------------------------
+ * POOP BANK DEPOSIT RECEIPT SPECIFIC RETRO STYLES
+ * ------------------------------------------------------------- */
+.receipt-star-header {
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    color: var(--pixel-charcoal);
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+}
+
+.receipt-poop-bank-title {
+    background-color: var(--pixel-yellow);
+    border: 3px solid var(--pixel-charcoal);
+    color: var(--pixel-charcoal);
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    padding: 6px;
+    margin: 8px 0;
+    text-align: center;
+    box-shadow: 2px 2px 0 var(--pixel-charcoal);
+}
+
+.receipt-deposit-title {
+    font-family: var(--font-heading);
+    font-size: 0.6rem;
+    margin-top: 6px;
+    color: var(--pixel-charcoal);
+}
+
+.receipt-pixel-meta-split {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.meta-left {
+    line-height: 1.35;
+    font-weight: bold;
+}
+
+.meta-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pixel-poodle-box {
+    border: 3px solid var(--pixel-charcoal);
+    padding: 2px;
+    background: white;
+    width: 60px;
+    height: 60px;
+    box-shadow: 2px 2px 0 var(--pixel-charcoal);
+}
+
+.pixel-poodle-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Points Layout */
+.points-badge-row {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin: 8px 0;
+}
+
+.giant-points {
+    font-size: 3.5rem;
+    font-weight: bold;
+    line-height: 0.9;
+    font-family: var(--font-body);
+}
+
+.points-label {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.points-pixel-icons {
+    margin-left: auto;
+    display: flex;
+    gap: 12px;
+    font-size: 2.2rem;
+    align-items: center;
+}
+
+.paw-coin {
+    color: var(--pixel-accent);
+}
+
+.points-today-txt {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #4b5563;
+    margin-top: 2px;
+}
+
+.progress-blocks-row {
+    margin-top: 4px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* Reward Photo Frame */
+.reward-split-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0;
+}
+
+.reward-photo-frame {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mini-polaroid {
+    border: 2px solid var(--pixel-charcoal);
+    background: white;
+    padding: 4px 4px 12px 4px;
+    width: 48px;
+    height: 52px;
+    box-shadow: 2px 2px 0 var(--pixel-charcoal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.polaroid-icon {
+    font-size: 1.15rem;
+    color: #6b7280;
+}
+
+.reward-details-text {
+    flex-grow: 1;
+    line-height: 1.25;
+}
+
+.reward-main {
+    font-weight: bold;
+    font-size: 1.15rem;
+}
+
+.reward-sub {
+    font-size: 0.95rem;
+    color: #4b5563;
+}
+
+.reward-zh {
+    font-size: 1.05rem;
+    color: #1f2937;
+}
+
+.reward-ticket-stub {
+    border: 3px dashed var(--pixel-charcoal);
+    border-radius: 4px;
+    padding: 6px;
+    background: var(--pixel-yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2px 2px 0 var(--pixel-charcoal);
+}
+
+.ticket-stub-icon {
+    font-size: 1.1rem;
+    color: var(--pixel-charcoal);
+}
+
+.next-step-desc {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.red-heart {
+    color: var(--pixel-red);
+}
+
+.next-step-item {
+    padding-left: 12px;
+    margin: 2px 0;
+    color: #4b5563;
+    font-weight: bold;
+}
+
+/* Footer Banner */
+.receipt-pixel-footer-banner {
+    background-color: var(--pixel-yellow);
+    border: 4px solid var(--pixel-charcoal);
+    box-shadow: 3px 3px 0 var(--pixel-charcoal);
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 14px;
+    text-align: left;
+}
+
+.footer-banner-left {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-banner-logo-box {
+    background: white;
+    border: 3px solid var(--pixel-charcoal);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--pixel-charcoal);
+}
+
+.footer-banner-mid {
+    flex-grow: 1;
+    line-height: 1.25;
+}
+
+.banner-zh {
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.banner-en {
+    font-size: 0.72rem;
+    font-weight: bold;
+    color: #4b5563;
+}
+
+.banner-store-badges {
+    display: flex;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.store-badge {
+    background: white;
+    border: 2px solid var(--pixel-charcoal);
+    font-size: 0.58rem;
+    padding: 1px 4px;
+    font-weight: bold;
+}
+
+.footer-banner-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.footer-banner-right canvas, .footer-banner-right img {
+    width: 54px !important;
+    height: 54px !important;
+    border: 2px solid var(--pixel-charcoal);
+    background: white;
+}
+
+/* Webcam Scanner Overlay Styling */
+#webcamScannerBlock {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 440px;
+    background: var(--pixel-bg-card);
+    border: 5px solid var(--pixel-charcoal);
+    box-shadow: 8px 8px 0 var(--pixel-charcoal);
+    padding: 16px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.webcam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid var(--pixel-charcoal);
+    padding-bottom: 8px;
+}
+
+.webcam-header h3 {
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    color: var(--pixel-blue);
+}
+
+.webcam-close-btn {
+    background: none;
+    border: none;
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    color: var(--pixel-charcoal);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.webcam-viewport {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    background: #000;
+    border: 4px solid var(--pixel-charcoal);
+    overflow: hidden;
+}
+
+#webcamPreview {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#webcamPreview video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+/* Sweeping red laser line overlay */
+.webcam-laser-line {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: var(--pixel-red);
+    box-shadow: 0 0 6px var(--pixel-red);
+    animation: scannerLaserSweep 2s infinite steps(20) ease-in-out;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* Retro target crosshair corners */
+.webcam-crosshairs {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    border: 2px dashed rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+}
+
+.webcam-crosshairs::before, .webcam-crosshairs::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-color: var(--pixel-accent);
+    border-style: solid;
+    pointer-events: none;
+}
+
+.webcam-crosshairs::before {
+    top: 0; left: 0;
+    border-width: 4px 0 0 4px;
+}
+
+.webcam-crosshairs::after {
+    bottom: 0; right: 0;
+    border-width: 0 4px 4px 0;
+}
+
+.webcam-instructions {
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    color: #4b5563;
+    line-height: 1.3;
+}
+
+/* Use Webcam Scan Button styling */
+.btn-webcam-trigger {
+    background-color: var(--pixel-blue) !important;
+    color: white !important;
+    font-size: 0.65rem !important;
+    margin-top: 8px;
+    width: 100%;
+    padding: 10px !important;
+}
+
+.btn-webcam-trigger:hover {
+    filter: brightness(1.1);
+}
+

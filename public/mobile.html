@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetaLife Mobile App Simulator</title>
+    <!-- Retro Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+    <div class="mobile-device">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span class="time" id="simTime">17:15</span>
+            <div class="status-icons">
+                <i class="fa-solid fa-signal"></i>
+                <i class="fa-solid fa-wifi"></i>
+                <i class="fa-solid fa-battery-three-quarters"></i>
+            </div>
+        </div>
+
+        <!-- App Container -->
+        <div class="app-container">
+            <!-- App Header -->
+            <header class="app-header">
+                <div class="app-title">
+                    <i class="fa-solid fa-paw app-logo"></i>
+                    <span>PetaLife <span class="badge-app">App</span></span>
+                </div>
+            </header>
+
+            <main class="app-main">
+                <!-- User Profile Selection Simulator -->
+                <div class="simulator-intro">
+                    <h2>LINK TERMINAL</h2>
+                    <p>Select a profile to retrieve records from AWS database and connect to the ATM Kiosk.</p>
+                </div>
+
+                <div class="profiles-section">
+                    <h3>AWS DATABASE PROFILES:</h3>
+                    <div class="profiles-list" id="profilesList">
+                        <!-- Loading placeholder -->
+                        <div class="loading-state">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            <p>CONNECTING AWS...</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Navigation Bar -->
+            <nav class="app-nav">
+                <div class="nav-item active">
+                    <i class="fa-solid fa-qrcode"></i>
+                    <span>Scan Link</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-solid fa-heart"></i>
+                    <span>Pets</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-solid fa-user"></i>
+                    <span>User</span>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Sync Overlay -->
+        <div class="sync-overlay" id="syncOverlay">
+            <div class="sync-card">
+                <div class="sync-icon-wrapper">
+                    <i class="fa-solid fa-rotate fa-spin sync-main-icon"></i>
+                    <i class="fa-solid fa-paw sync-sub-icon"></i>
+                </div>
+                <h3>AWS AUTHORIZATION</h3>
+                <p>Retrieving health records & points...</p>
+            </div>
+        </div>
+
+        <!-- Success Screen -->
+        <div class="success-screen" id="successScreen">
+            <div class="success-card">
+                <div class="success-icon-wrapper">
+                    <i class="fa-solid fa-square-check"></i>
+                </div>
+                <h3>SYNC COMPLETED!</h3>
+                <p class="desc">Profile data forwarded to ATM Terminal screen.</p>
+                <div class="receipt-action-tip">
+                    <i class="fa-solid fa-print"></i>
+                    <p>Please look at Kiosk monitor to review and print your records ticket.</p>
+                </div>
+                <button class="btn btn-done" id="dismissSuccessBtn">LINK ANOTHER</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="js/mobile.js"></script>
+</body>
+</html>

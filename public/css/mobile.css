@@ -1,0 +1,397 @@
+/* -------------------------------------------------------------
+ * PETALIFE MOBILE APP - RETRO 8-BIT EDITION
+ * Redesigned for Pixel-art light mode layout representation
+ * ------------------------------------------------------------- */
+
+:root {
+    --app-bg: #f4eee1; /* Sand background */
+    --app-card: #ffffff; /* Crisp white */
+    --app-charcoal: #252422; /* Text and border color */
+    --app-emerald: #00b894;
+    --app-blue: #0984e3;
+    --app-yellow: #fdcb6e;
+    --font-heading: 'Press Start 2P', monospace;
+    --font-body: 'VT323', monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #0b0c10; /* Keep the surrounding page dark to emphasize the phone */
+    font-family: var(--font-body);
+    color: var(--app-charcoal);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    font-size: 1.45rem;
+}
+
+/* Phone Frame wrapper */
+.mobile-device {
+    width: 375px;
+    height: 720px;
+    background-color: var(--app-bg);
+    border: 6px solid var(--app-charcoal);
+    box-shadow: 12px 12px 0 rgba(0,0,0,0.6);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Status Bar */
+.status-bar {
+    height: 36px;
+    padding: 0 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #eae3d2;
+    border-bottom: 4px solid var(--app-charcoal);
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: bold;
+}
+
+.status-icons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* App Container */
+.app-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* App Header */
+.app-header {
+    padding: 12px 16px;
+    border-bottom: 4px solid var(--app-charcoal);
+    background: var(--app-card);
+}
+
+.app-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.app-logo {
+    color: var(--app-emerald);
+}
+
+.badge-app {
+    background-color: var(--app-yellow);
+    border: 2px solid var(--app-charcoal);
+    font-size: 0.55rem;
+    padding: 2px 4px;
+    margin-left: 4px;
+}
+
+/* Main Content area */
+.app-main {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.simulator-intro {
+    margin-bottom: 18px;
+}
+
+.simulator-intro h2 {
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    margin-bottom: 6px;
+}
+
+.simulator-intro p {
+    font-size: 1.15rem;
+    line-height: 1.35;
+    color: #4b5563;
+}
+
+.profiles-section h3 {
+    font-family: var(--font-heading);
+    font-size: 0.62rem;
+    color: var(--app-blue);
+    margin-bottom: 8px;
+}
+
+.profiles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 30px 0;
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+}
+
+.loading-state i {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: var(--app-emerald);
+}
+
+/* User Card mobile style */
+.user-card-mobile {
+    background: var(--app-card);
+    border: 3px solid var(--app-charcoal);
+    box-shadow: 4px 4px 0 var(--app-charcoal);
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.user-card-mobile:hover {
+    background: #eae3d2;
+}
+
+.user-card-mobile:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--app-charcoal);
+}
+
+.card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-avatar {
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--app-charcoal);
+    object-fit: cover;
+}
+
+.card-info h4 {
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    margin-bottom: 4px;
+}
+
+.card-info p {
+    font-size: 1.1rem;
+    color: #4b5563;
+    font-weight: bold;
+}
+
+.card-action-icon {
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--app-charcoal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--app-charcoal);
+    background-color: var(--app-yellow);
+    font-size: 0.82rem;
+}
+
+.user-card-mobile:hover .card-action-icon {
+    background-color: var(--app-emerald);
+    color: white;
+}
+
+/* Navigation Bar */
+.app-nav {
+    height: 60px;
+    border-top: 4px solid var(--app-charcoal);
+    background: var(--app-card);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    justify-items: center;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: #4b5563;
+    font-family: var(--font-heading);
+    font-size: 0.5rem;
+    cursor: pointer;
+}
+
+.nav-item i {
+    font-size: 1.1rem;
+}
+
+.nav-item.active {
+    color: var(--app-emerald);
+}
+
+/* Sync Overlay card */
+.sync-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(244, 238, 225, 0.95);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sync-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.sync-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sync-icon-wrapper {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    margin-bottom: 18px;
+}
+
+.sync-main-icon {
+    font-size: 4rem;
+    color: var(--app-blue);
+    opacity: 0.3;
+}
+
+.sync-sub-icon {
+    font-size: 1.8rem;
+    color: var(--app-emerald);
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.sync-card h3 {
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+}
+
+.sync-card p {
+    font-size: 1.15rem;
+    line-height: 1.35;
+    color: #4b5563;
+}
+
+/* Success Card overlay styling */
+.success-screen {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--app-bg);
+    z-index: 101;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.success-screen.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.success-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.success-icon-wrapper {
+    font-size: 4rem;
+    color: var(--app-emerald);
+    margin-bottom: 16px;
+    animation: steppedZoom 0.25s steps(4) forwards;
+}
+
+@keyframes steppedZoom {
+    0% { transform: scale(0.2); }
+    100% { transform: scale(1); }
+}
+
+.success-card h3 {
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+}
+
+.success-card .desc {
+    font-size: 1.15rem;
+    line-height: 1.35;
+    color: #4b5563;
+    margin-bottom: 20px;
+}
+
+.receipt-action-tip {
+    background: rgba(0, 184, 148, 0.08);
+    border: 3px solid var(--app-emerald);
+    padding: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    text-align: left;
+    margin-bottom: 24px;
+}
+
+.receipt-action-tip i {
+    font-size: 1.6rem;
+    color: var(--app-emerald);
+}
+
+.receipt-action-tip p {
+    font-size: 1.1rem;
+    line-height: 1.3;
+    font-weight: bold;
+}
+
+.btn-done {
+    background-color: var(--app-blue);
+    color: white;
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 14px 20px;
+    border: 3px solid var(--app-charcoal);
+    box-shadow: 3px 3px 0 var(--app-charcoal);
+    cursor: pointer;
+    width: 100%;
+}
+
+.btn-done:hover {
+    filter: brightness(1.1);
+}
+
+.btn-done:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--app-charcoal);
+}

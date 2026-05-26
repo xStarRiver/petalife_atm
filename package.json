@@ -1,0 +1,28 @@
+{
+  "name": "petalife-atm",
+  "version": "1.0.0",
+  "description": "PetaLife ATM Kiosk and Receipt Printer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "kiosk",
+    "atm",
+    "printer",
+    "escpos",
+    "sdk"
+  ],
+  "author": "Antigravity",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1053.0",
+    "@aws-sdk/lib-dynamodb": "^3.1053.0",
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2",
+    "koffi": "^2.8.12",
+    "vercel": "^54.4.1",
+    "ws": "^8.17.0"
+  }
+}

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetaLife ATM - 8-Bit Terminal</title>
+    <!-- Pixel Art Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Retro style icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/kiosk.css">
+</head>
+<body>
+    <div class="kiosk-pixel-container">
+        <!-- Top Navigation / Header -->
+        <header class="pixel-header">
+            <div class="header-logo">
+                <i class="fa-solid fa-paw logo-pixel-icon"></i>
+                <span class="logo-pixel-text">PetaLife <span class="accent-color">ATM</span></span>
+            </div>
+            <div class="header-status-group">
+                <div class="pixel-status-pill" id="quickStatusPill">
+                    <span class="pixel-status-indicator red"></span>
+                    <span class="pixel-status-text">OFFLINE</span>
+                </div>
+                <div class="pixel-clock" id="liveClock">00:00:00</div>
+                <button class="pixel-btn-icon" id="openSettingsBtn" title="Terminal Config">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Screen -->
+        <main class="pixel-screen-viewport">
+            <!-- IDLE SCREEN (Shows QR Code & Instructions) -->
+            <div class="pixel-screen-card active" id="idleScreen">
+                <div class="pixel-screen-content">
+                    <div class="pixel-instruction-block">
+                        <div class="pixel-badge">STEP 01</div>
+                        <h1>SCAN QR CODE</h1>
+                        <p>Link your mobile phone profile to load your PetaLife records.</p>
+                    </div>
+
+                    <div class="pixel-qr-section">
+                        <div class="pixel-qr-border">
+                            <div id="qrcode"></div>
+                        </div>
+                        <div class="pixel-waiting-indicator">
+                            <i class="fa-solid fa-spinner fa-spin-pulse"></i> WAITING FOR SCAN...
+                        </div>
+                    </div>
+
+                    <div class="pixel-scanner-zone">
+                        <i class="fa-solid fa-barcode scanner-icon"></i>
+                        <span class="scanner-text">OR HOLD MEMBER QR PASS IN FRONT OF TERMINAL SCANNER</span>
+                        <button type="button" class="pixel-btn btn-webcam-trigger" id="startWebcamBtn">
+                            <i class="fa-solid fa-camera"></i> USE WEBCAM SCAN
+                        </button>
+                    </div>
+
+                    <!-- Webcam Scanning Overlay Container -->
+                    <div id="webcamScannerBlock" style="display: none;">
+                        <div class="webcam-header">
+                            <h3><i class="fa-solid fa-camera"></i> WEBCAM QR SCANNER</h3>
+                            <button type="button" class="webcam-close-btn" id="stopWebcamBtn">&times;</button>
+                        </div>
+                        <div class="webcam-viewport">
+                            <div id="webcamPreview"></div>
+                            <!-- Sweeping red laser line overlay on top of video -->
+                            <div class="webcam-laser-line"></div>
+                            <!-- Crosshair bounds -->
+                            <div class="webcam-crosshairs"></div>
+                        </div>
+                        <div class="webcam-instructions">
+                            Hold your mobile app's QR code up to your MacBook camera.
+                        </div>
+                    </div>
+
+                    <div class="pixel-tip-box">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>Local test? <a id="mobileSimLink" target="_blank" href="#">Open Simulator</a> to link profile.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTIVE SCREEN (Receipt Rolling down and Print action) -->
+            <div class="pixel-screen-card" id="receiptScreen">
+                <div class="pixel-screen-content receipt-centered-layout">
+                    <!-- Mechanical Printer & Stepped Rolling Receipt -->
+                    <div class="pixel-printer-preview-container">
+                        <!-- Retro Printer Device Box -->
+                        <div class="pixel-printer-device">
+                            <div class="printer-device-body">
+                                <div class="printer-feed-rollers"></div>
+                                <div class="printer-mouth-top"></div>
+                                <!-- Mechanical slot mouth from where paper slides out -->
+                                <div class="printer-mouth-slot" id="printerMouth"></div>
+                            </div>
+
+                            <!-- Rolling down Paper Receipt Container -->
+                            <div class="receipt-paper-roll-wrapper">
+                                <div class="pixel-paper-receipt" id="paperReceipt">
+                                    <div class="pixel-receipt-body">
+                                        <div class="receipt-pixel-header">
+                                            <div class="receipt-star-header">✨ <i class="fa-solid fa-paw"></i> Petalife <i class="fa-solid fa-paw"></i> ✨</div>
+                                            <div class="receipt-poop-bank-title">便便銀行 | POOP BANK</div>
+                                            <div class="receipt-deposit-title">🐾 DEPOSIT RECEIPT 🐾</div>
+                                            <div class="pixel-divider-dotted"></div>
+                                        </div>
+
+                                        <div class="receipt-pixel-meta-split">
+                                            <div class="meta-left">
+                                                <p>Name     : <span id="rName">--</span></p>
+                                                <p>Tier     : <span id="rTier">--</span></p>
+                                                <p>User ID  : <span id="rMemberId">--</span></p>
+                                                <p>Pet      : <span id="rPetName">--</span></p>
+                                                <p>Category : <span id="rPetCategory">--</span></p>
+                                                <p>Date     : <span id="rDate">--</span></p>
+                                                <p>Location : <span id="rLocation">--</span></p>
+                                            </div>
+                                            <div class="meta-right">
+                                                <div class="pixel-poodle-box">
+                                                    <img src="images/pixel_poodle.png" alt="Poodle" id="rPetAvatar">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="pixel-divider-dotted"></div>
+
+                                        <!-- ACCOUNT SUMMARY -->
+                                        <div class="receipt-pixel-section">
+                                            <h4 class="receipt-sub-title">🐾 ACCOUNT SUMMARY</h4>
+                                            <div class="points-badge-row">
+                                                <span class="giant-points" id="rPoints">0</span>
+                                                <span class="points-label">P-Coins</span>
+                                                <div class="points-pixel-icons">
+                                                    <span class="poop-coin">💩</span>
+                                                    <span class="paw-coin"><i class="fa-solid fa-circle-nodes"></i></span>
+                                                </div>
+                                            </div>
+                                            <p class="points-today-txt">+<span id="rPointsToday">0</span> P-Coins deposited today</p>
+                                            <div class="pixel-divider-dotted"></div>
+                                            <p>Tracking day : <span id="rTrackingDay">Day 1</span></p>
+                                            <p class="progress-blocks-row">Progress     : <span id="rProgressBlocks">□ □ □ □ □ □ □ □</span></p>
+                                            <div class="pixel-divider-dotted"></div>
+                                        </div>
+
+                                        <!-- DEPOSIT DETAILS -->
+                                        <div class="receipt-pixel-section">
+                                            <h4 class="receipt-sub-title">🐾 DEPOSIT DETAILS</h4>
+                                            <p>Stool Type : <span id="rStoolType">Type 4</span></p>
+                                            <p>Condition  : <span id="rStoolCondition" class="condition-val">Healthy</span></p>
+                                            <div class="pixel-divider-dotted"></div>
+                                        </div>
+
+                                        <!-- REWARD CREDITED -->
+                                        <div class="receipt-pixel-section">
+                                            <h4 class="receipt-sub-title">🐾 REWARD CREDITED</h4>
+                                            <div class="reward-split-row">
+                                                <div class="reward-photo-frame">
+                                                    <div class="mini-polaroid">
+                                                        <i class="fa-solid fa-camera polaroid-icon"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="reward-details-text">
+                                                    <p class="reward-main" id="rRewardTitle">Free Pet Photoboth Session</p>
+                                                    <p class="reward-sub" id="rRewardSubtitle">Digital Version</p>
+                                                    <p class="reward-zh" id="rRewardChinese">免費寵物自拍館拍攝 (電子版)</p>
+                                                </div>
+                                                <div class="reward-ticket-stub">
+                                                    <i class="fa-solid fa-paw ticket-stub-icon"></i>
+                                                </div>
+                                            </div>
+                                            <div class="pixel-divider-dotted"></div>
+                                        </div>
+
+                                        <!-- NEXT STEP -->
+                                        <div class="receipt-pixel-section">
+                                            <h4 class="receipt-sub-title">🐾 NEXT STEP</h4>
+                                            <p class="next-step-desc"><i class="fa-solid fa-heart red-heart"></i> Continue daily scan to unlock:</p>
+                                            <p class="next-step-item">→ Day 7 Reward</p>
+                                            <p class="next-step-item">→ Dyson Pencil Wash for 30 days log</p>
+                                        </div>
+
+                                        <!-- Footer Download Banner -->
+                                        <div class="receipt-pixel-footer-banner">
+                                            <div class="footer-banner-left">
+                                                <div class="footer-banner-logo-box">
+                                                    <i class="fa-solid fa-paw"></i>
+                                                </div>
+                                            </div>
+                                            <div class="footer-banner-mid">
+                                                <p class="banner-zh">開始存入你寵物第一筆健康資產 🐾</p>
+                                                <p class="banner-en">Start Your Pet's First Health Deposit</p>
+                                                <div class="banner-store-badges">
+                                                    <span class="store-badge"><i class="fa-brands fa-apple"></i> iOS</span>
+                                                    <span class="store-badge"><i class="fa-brands fa-google-play"></i> Android</span>
+                                                </div>
+                                            </div>
+                                            <div class="footer-banner-right">
+                                                <div id="receiptQr"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pixel-receipt-cut-edge"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Centered Buttons Row -->
+                    <div class="pixel-actions-row">
+                        <button class="pixel-btn btn-action-print" id="printReceiptBtn">
+                            <i class="fa-solid fa-print"></i> PRINT RECEIPT
+                        </button>
+                        <button class="pixel-btn btn-action-reset" id="resetSessionBtn">
+                            <i class="fa-solid fa-rotate-left"></i> DONE / RESET
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Retro Terminal Config Settings Modal -->
+    <div class="pixel-modal-overlay" id="settingsModal">
+        <div class="pixel-modal-card">
+            <div class="pixel-modal-header">
+                <h3><i class="fa-solid fa-sliders"></i> HARDWARE SETUP</h3>
+                <button class="pixel-modal-close" id="closeSettingsBtn">&times;</button>
+            </div>
+            <div class="pixel-modal-body">
+                <form id="printerSettingsForm">
+                    <div class="pixel-form-group">
+                        <label for="printerInterface">INTERFACE SELECT</label>
+                        <select class="pixel-select" id="printerInterface">
+                            <option value="USB">USB PORT (WINDOWS DLL)</option>
+                            <option value="COM">COM PORT (SERIAL PORT)</option>
+                            <option value="NET">ETHERNET PORT (IP ADDRESS)</option>
+                            <option value="LPT">LPT PORT (PARALLEL PORT)</option>
+                            <option value="MOCK">DEMO MOCK PRINTER MODE</option>
+                        </select>
+                    </div>
+
+                    <!-- USB Settings Panel -->
+                    <div class="pixel-sub-panel" id="usbSettingsPanel">
+                        <div class="pixel-form-group">
+                            <label for="usbDeviceSelect">USB DEVICE SEARCH</label>
+                            <div class="pixel-input-row">
+                                <select class="pixel-select" id="usbDeviceSelect">
+                                    <option value="">NO USB DEVICES FOUND. CLICK SCAN.</option>
+                                </select>
+                                <button type="button" class="pixel-btn" id="scanUsbBtn">
+                                    <i class="fa-solid fa-rotate"></i> SCAN
+                                </button>
+                            </div>
+                            <small class="pixel-help-text">Reads the Windows system USB registry stack using printer.sdk.dll.</small>
+                        </div>
+                        <div class="pixel-form-group">
+                            <label for="usbDevicePath">CUSTOM PATH</label>
+                            <input type="text" class="pixel-input" id="usbDevicePath" placeholder="USB,\\?\usb#vid_0416&pid_5011#...">
+                        </div>
+                    </div>
+
+                    <!-- COM Settings Panel -->
+                    <div class="pixel-sub-panel" id="comSettingsPanel" style="display: none;">
+                        <div class="pixel-form-group row-2">
+                            <div>
+                                <label for="comPort">COM PORT</label>
+                                <input type="text" class="pixel-input" id="comPort" placeholder="COM1" value="COM1">
+                            </div>
+                            <div>
+                                <label for="comBaudrate">BAUDRATE</label>
+                                <select class="pixel-select" id="comBaudrate">
+                                    <option value="9600">9600</option>
+                                    <option value="19200">19200</option>
+                                    <option value="38400">38400</option>
+                                    <option value="57600">57600</option>
+                                    <option value="115200" selected>115200</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Network Settings Panel -->
+                    <div class="pixel-sub-panel" id="netSettingsPanel" style="display: none;">
+                        <div class="pixel-form-group row-2">
+                            <div>
+                                <label for="netHost">PRINTER IP</label>
+                                <input type="text" class="pixel-input" id="netHost" placeholder="192.168.1.100" value="192.168.1.100">
+                            </div>
+                            <div>
+                                <label for="netPort">PORT</label>
+                                <input type="text" class="pixel-input" id="netPort" placeholder="9100" value="9100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LPT Settings Panel -->
+                    <div class="pixel-sub-panel" id="lptSettingsPanel" style="display: none;">
+                        <div class="pixel-form-group">
+                            <label for="lptPort">LPT PORT</label>
+                            <select class="pixel-select" id="lptPort">
+                                <option value="LPT1">LPT1</option>
+                                <option value="LPT2">LPT2</option>
+                                <option value="LPT3">LPT3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="pixel-divider"></div>
+
+                    <div class="pixel-status-block">
+                        <span class="pixel-status-label">HARDWARE STATE:</span>
+                        <span class="pixel-status-value disconnected" id="connectionStatusVal">DISCONNECTED</span>
+                    </div>
+
+                    <div class="pixel-modal-footer-btns">
+                        <button type="button" class="pixel-btn btn-danger" id="disconnectPrinterBtn" style="display: none;">
+                            <i class="fa-solid fa-power-off"></i> DISCONNECT
+                        </button>
+                        <button type="button" class="pixel-btn" id="testPrintBtn" style="display: none;">
+                            <i class="fa-solid fa-file-invoice"></i> TEST PRINT
+                        </button>
+                        <button type="button" class="pixel-btn btn-primary" id="connectPrinterBtn">
+                            <i class="fa-solid fa-plug"></i> CONNECT & SAVE
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications & Custom Printing Overlay -->
+    <div class="pixel-toast-container" id="toastContainer"></div>
+
+    <div class="pixel-print-overlay" id="printOverlay">
+        <div class="pixel-print-box">
+            <i class="fa-solid fa-print pixel-print-icon"></i>
+            <div class="pixel-paper-feed-strip"></div>
+            <h2>PRINTING RECORDS PASS</h2>
+            <p>Buzzing print head... please hold paper card.</p>
+        </div>
+    </div>
+
+    <!-- Client-side QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Webcam QR Code Reader -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <!-- Custom Kiosk logic -->
+    <script src="js/kiosk.js"></script>
+</body>
+</html>
