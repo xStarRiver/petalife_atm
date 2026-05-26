@@ -16,6 +16,10 @@
       "dest": "server.js"
     },
     {
+      "src": "/$",
+      "redirect": "/kiosk.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }
