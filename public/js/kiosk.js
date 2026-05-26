@@ -125,7 +125,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Fetch Server LAN info
             const res = await fetch('/api/server-info');
             const info = await res.json();
-            const hostUrl = `http://${info.ip}:${info.port}/mobile.html?sessionId=${sessionId}`;
+            
+            // Dynamically set hostUrl for mobile QR code scan
+            let hostUrl;
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.')) {
+                hostUrl = `http://${info.ip}:${info.port}/mobile.html?sessionId=${sessionId}`;
+            } else {
+                hostUrl = `${window.location.origin}/mobile.html?sessionId=${sessionId}`;
+            }
             
             // Set simulator quick link
             mobileSimLink.href = `/mobile.html?sessionId=${sessionId}`;
@@ -159,7 +166,17 @@ document.addEventListener('DOMContentLoaded', () => {
             socket.close();
         }
 
-        const wsUrl = `ws://${ip}:${port}/ws?role=kiosk&sessionId=${sessionId}`;
+        // Determine secure WebSocket protocol and domain based on how page is loaded
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        let wsUrl;
+        
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.')) {
+            wsUrl = `ws://${ip}:${port}/ws?role=kiosk&sessionId=${sessionId}`;
+        } else {
+            wsUrl = `${wsProtocol}//${window.location.host}/ws?role=kiosk&sessionId=${sessionId}`;
+        }
+        
+        console.log(`Connecting WebSocket to: ${wsUrl}`);
         socket = new WebSocket(wsUrl);
 
         socket.onopen = () => {
