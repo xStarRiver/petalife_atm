@@ -1,5 +1,7 @@
 const koffi = require('koffi');
 const path = require('path');
+const fs = require('fs');
+const PDFDocument = require('pdfkit');
 
 let lib = null;
 let isMock = false;
@@ -63,6 +65,7 @@ try {
 
 // Keep track of active connection info
 let activeSettings = null;
+let directPrinterName = null;  // Name of the Windows printer for DIRECT_PRINT mode
 
 // Find USB Printers (using callback)
 function listPrinters() {
@@ -103,6 +106,14 @@ function connectPrinter(settings) {
         activeSettings = settings;
         console.log(`[Browser Printer] Set active printer to browser print`);
         return { success: true, message: `Connected to Browser Print` };
+    } else if (typeof settings === 'string' && settings.startsWith('DIRECT_PRINT:')) {
+        // DIRECT_PRINT:<printerName> — silent print mode via pdf-to-printer
+        const printerName = settings.substring('DIRECT_PRINT:'.length);
+        isMock = true;
+        activeSettings = settings;
+        directPrinterName = printerName;
+        console.log(`[Direct Printer] Set active printer to: ${printerName}`);
+        return { success: true, message: `Connected to ${printerName} (Direct Silent Print)` };
     } else {
         // Only allow switching to hardware mode if DLL is loaded
         if (lib !== null) {
@@ -154,6 +165,7 @@ function connectPrinter(settings) {
 function disconnectPrinter() {
     if (isMock) {
         activeSettings = null;
+        directPrinterName = null;
         console.log('[Mock Printer] Disconnected.');
         isMock = (lib === null);
         return { success: true };
@@ -184,6 +196,15 @@ function getStatus() {
             return { 
                 connected: true, 
                 status: 'Browser Standard Print Mode', 
+                code: 0x12,
+                isMock: true,
+                settings: activeSettings
+            };
+        }
+        if (activeSettings && activeSettings.startsWith('DIRECT_PRINT:')) {
+            return { 
+                connected: true, 
+                status: `Direct Print: ${directPrinterName}`, 
                 code: 0x12,
                 isMock: true,
                 settings: activeSettings
@@ -382,6 +403,143 @@ function printSelfTest() {
     }
 }
 
+// Generate a receipt PDF in memory and return the file path
+function generateReceiptPDF(user) {
+    return new Promise((resolve, reject) => {
+        const tmpDir = path.join(__dirname, 'tmp');
+        if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+        const filePath = path.join(tmpDir, `receipt_${Date.now()}.pdf`);
+
+        const now = new Date();
+        const dateStr = now.toLocaleString('zh-CN', { 
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', hour12: false 
+        }).replace(/\//g, '-');
+
+        const progressCount = user.progress || 0;
+        let progressStr = '';
+        for (let i = 0; i < 8; i++) {
+            progressStr += i < progressCount ? '■ ' : '□ ';
+        }
+
+        const displayId = user.displayId || (user.id ? user.id.substring(0, 6).toUpperCase() : '------');
+        const petName = user.petName || 'Mochi';
+        const petCategory = user.petCategory || 'Dog';
+        const petBreed = user.petBreed || 'Poodle';
+        const points = user.points || 0;
+        const pointsToday = user.pointsDeposited || 0;
+        const trackingDay = user.trackingDay || 1;
+        const stoolType = user.stoolType || 'Type 4';
+        const condition = user.condition || 'Healthy';
+
+        // Create a small receipt-sized PDF (80mm wide x auto height)
+        const doc = new PDFDocument({
+            size: [226, 500], // ~80mm x ~176mm at 72dpi
+            margins: { top: 15, bottom: 15, left: 15, right: 15 }
+        });
+
+        const stream = fs.createWriteStream(filePath);
+        doc.pipe(stream);
+
+        // Header
+        doc.fontSize(14).font('Helvetica-Bold').text('PETALIFE', { align: 'center' });
+        doc.fontSize(10).font('Helvetica-Bold').text('POOP BANK', { align: 'center' });
+        doc.moveDown(0.3);
+        doc.fontSize(9).font('Helvetica').text('DEPOSIT RECEIPT', { align: 'center' });
+        doc.moveDown(0.3);
+        doc.fontSize(7).text('================================', { align: 'center' });
+        doc.moveDown(0.3);
+
+        // User info
+        const leftX = 15;
+        doc.fontSize(8).font('Helvetica');
+        doc.text(`Username : ${user.name || '---'}`, leftX);
+        doc.text(`User ID  : ${displayId}`, leftX);
+        doc.text(`Pet Name : ${petName}`, leftX);
+        doc.text(`Category : ${petCategory.toUpperCase()}`, leftX);
+        doc.text(`Breed    : ${petBreed.toUpperCase()}`, leftX);
+        doc.text(`Date     : ${dateStr}`, leftX);
+        doc.moveDown(0.3);
+        doc.fontSize(7).text('--------------------------------', leftX);
+        doc.moveDown(0.3);
+
+        // Account Summary
+        doc.fontSize(9).font('Helvetica-Bold').text('ACCOUNT SUMMARY', leftX);
+        doc.fontSize(8).font('Helvetica');
+        doc.text(`P-Coins  : ${points}`, leftX);
+        doc.text(`Today    : +${pointsToday} deposited`, leftX);
+        doc.text(`Tracking : Day ${trackingDay}`, leftX);
+        doc.text(`Progress : ${progressStr.trim()}`, leftX);
+        doc.moveDown(0.3);
+        doc.fontSize(7).text('--------------------------------', leftX);
+        doc.moveDown(0.3);
+
+        // Deposit Details
+        doc.fontSize(9).font('Helvetica-Bold').text('DEPOSIT DETAILS', leftX);
+        doc.fontSize(8).font('Helvetica');
+        doc.text(`Stool    : ${stoolType}`, leftX);
+        doc.text(`Condition: ${condition}`, leftX);
+        doc.moveDown(0.3);
+        doc.fontSize(7).text('--------------------------------', leftX);
+        doc.moveDown(0.3);
+
+        // Footer
+        doc.fontSize(8).font('Helvetica').text('Thank you for using PetaLife!', { align: 'center' });
+        doc.moveDown(0.5);
+        doc.fontSize(7).text(`ID: ${user.id || '---'}`, { align: 'center' });
+
+        doc.end();
+
+        stream.on('finish', () => resolve(filePath));
+        stream.on('error', reject);
+    });
+}
+
+// Silent print: generate PDF and send to Windows printer directly
+async function silentPrintReceipt(user) {
+    if (!directPrinterName) {
+        return { success: false, message: 'No direct printer configured. Please select a printer in settings.' };
+    }
+
+    try {
+        console.log(`[Direct Print] Generating PDF for ${user.petName || 'Unknown'}...`);
+        const pdfPath = await generateReceiptPDF(user);
+        console.log(`[Direct Print] PDF generated: ${pdfPath}`);
+
+        // Use dynamic import for ESM pdf-to-printer
+        const { print } = await import('pdf-to-printer');
+        
+        console.log(`[Direct Print] Sending to printer: ${directPrinterName}`);
+        await print(pdfPath, {
+            printer: directPrinterName,
+            silent: true
+        });
+
+        // Clean up temp file after a delay
+        setTimeout(() => {
+            try { fs.unlinkSync(pdfPath); } catch (e) {}
+        }, 5000);
+
+        console.log(`[Direct Print] Receipt sent to ${directPrinterName} successfully.`);
+        return { success: true, message: `Receipt printed to ${directPrinterName}` };
+    } catch (err) {
+        console.error('[Direct Print] Error:', err);
+        return { success: false, message: `Direct Print Error: ${err.message}` };
+    }
+}
+
+// List system printers using pdf-to-printer
+async function listSystemPrinters() {
+    try {
+        const { getPrinters } = await import('pdf-to-printer');
+        const printers = await getPrinters();
+        return printers.map(p => p.name);
+    } catch (err) {
+        console.error('Error listing system printers:', err);
+        return [];
+    }
+}
+
 module.exports = {
     isMock,
     listPrinters,
@@ -389,5 +547,8 @@ module.exports = {
     disconnect: disconnectPrinter,
     getStatus,
     printReceipt,
-    printSelfTest
+    printSelfTest,
+    silentPrintReceipt,
+    listSystemPrinters,
+    getDirectPrinterName: () => directPrinterName
 };

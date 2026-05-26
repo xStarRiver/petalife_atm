@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const printerSettingsForm = document.getElementById('printerSettingsForm');
 
     // Sub-panels in settings form
+    const directPanel = document.getElementById('directSettingsPanel');
     const windowsPanel = document.getElementById('windowsSettingsPanel');
     const usbPanel = document.getElementById('usbSettingsPanel');
     const comPanel = document.getElementById('comSettingsPanel');
@@ -47,6 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const lptPanel = document.getElementById('lptSettingsPanel');
 
     // Settings inputs
+    const directPrinterSelect = document.getElementById('directPrinterSelect');
+    const scanDirectBtn = document.getElementById('scanDirectBtn');
     const windowsPrinterSelect = document.getElementById('windowsPrinterSelect');
     const scanWindowsBtn = document.getElementById('scanWindowsBtn');
     const usbSelect = document.getElementById('usbDeviceSelect');
@@ -332,7 +335,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Sync UI modal selector if setting is active
                 if (data.settings) {
                     const val = data.settings;
-                    if (val === 'BROWSER_PRINT') {
+                    if (val.startsWith('DIRECT_PRINT:')) {
+                        printerInterface.value = 'DIRECT';
+                        const prName = val.substring('DIRECT_PRINT:'.length);
+                        directPrinterSelect.innerHTML = '';
+                        const opt = document.createElement('option');
+                        opt.value = prName;
+                        opt.textContent = prName.toUpperCase();
+                        directPrinterSelect.appendChild(opt);
+                    } else if (val === 'BROWSER_PRINT') {
                         printerInterface.value = 'BROWSER';
                     } else if (val.startsWith('DRV,')) {
                         printerInterface.value = 'WINDOWS';
@@ -401,6 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Interface switch helper
     printerInterface.addEventListener('change', () => {
+        if (directPanel) directPanel.style.display = 'none';
         if (windowsPanel) windowsPanel.style.display = 'none';
         usbPanel.style.display = 'none';
         comPanel.style.display = 'none';
@@ -408,7 +420,8 @@ document.addEventListener('DOMContentLoaded', () => {
         lptPanel.style.display = 'none';
 
         const choice = printerInterface.value;
-        if (choice === 'WINDOWS' && windowsPanel) windowsPanel.style.display = 'block';
+        if (choice === 'DIRECT' && directPanel) directPanel.style.display = 'block';
+        else if (choice === 'WINDOWS' && windowsPanel) windowsPanel.style.display = 'block';
         else if (choice === 'USB') usbPanel.style.display = 'block';
         else if (choice === 'COM') comPanel.style.display = 'block';
         else if (choice === 'NET') netPanel.style.display = 'block';
@@ -448,6 +461,42 @@ document.addEventListener('DOMContentLoaded', () => {
             } finally {
                 scanWindowsBtn.disabled = false;
                 scanWindowsBtn.innerHTML = '<i class="fa-solid fa-rotate"></i> SCAN';
+            }
+        });
+    }
+    // Direct Print scan system printers
+    if (scanDirectBtn) {
+        scanDirectBtn.addEventListener('click', async () => {
+            playBeep(700, 0.05);
+            scanDirectBtn.disabled = true;
+            scanDirectBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ...';
+            
+            try {
+                const res = await fetch(getApiRoot('/api/printer/system-list'));
+                const data = await res.json();
+                
+                directPrinterSelect.innerHTML = '';
+                if (data.printers && data.printers.length > 0) {
+                    data.printers.forEach(printerStr => {
+                        const opt = document.createElement('option');
+                        opt.value = printerStr;
+                        opt.textContent = printerStr.toUpperCase();
+                        directPrinterSelect.appendChild(opt);
+                    });
+                    showToast(`FOUND ${data.printers.length} PRINTERS`, 'success');
+                } else {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = 'NO PRINTERS FOUND.';
+                    directPrinterSelect.appendChild(opt);
+                    showToast('NO SYSTEM PRINTERS DETECTED', 'info');
+                }
+            } catch (err) {
+                console.error('Direct printer scan fail:', err);
+                showToast('SCAN FAILED - IS LOCAL SERVER RUNNING?', 'error');
+            } finally {
+                scanDirectBtn.disabled = false;
+                scanDirectBtn.innerHTML = '<i class="fa-solid fa-rotate"></i> SCAN';
             }
         });
     }
@@ -524,6 +573,13 @@ document.addEventListener('DOMContentLoaded', () => {
             connectionString = 'MOCK_PRINTER_INTERFACE';
         } else if (choice === 'BROWSER') {
             connectionString = 'BROWSER_PRINT';
+        } else if (choice === 'DIRECT') {
+            const selectedDirect = directPrinterSelect.value;
+            if (!selectedDirect) {
+                showToast('PLEASE SCAN AND SELECT A PRINTER FIRST', 'error');
+                return;
+            }
+            connectionString = `DIRECT_PRINT:${selectedDirect}`;
         }
 
         connectPrinterBtn.disabled = true;
@@ -609,6 +665,37 @@ document.addEventListener('DOMContentLoaded', () => {
     printReceiptBtn.addEventListener('click', async () => {
         if (!currentUser) return;
         playBeep(700, 0.08);
+
+        // Direct silent print mode
+        if (activePrinterSettings && activePrinterSettings.startsWith('DIRECT_PRINT:')) {
+            printReceiptBtn.disabled = true;
+            printReceiptBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> PRINTING...';
+            showToast('SENDING TO PRINTER...', 'success');
+            try {
+                const res = await fetch(getApiRoot('/api/printer/silent-print'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user: currentUser })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    playBeep(1000, 0.1);
+                    setTimeout(() => playBeep(1200, 0.1), 100);
+                    showToast('RECEIPT PRINTED!', 'success');
+                } else {
+                    playBeep(300, 0.35);
+                    showToast(data.message || 'PRINT FAILED', 'error');
+                }
+            } catch (err) {
+                console.error('Silent print failed:', err);
+                playBeep(300, 0.35);
+                showToast('PRINT SERVICE ERROR', 'error');
+            } finally {
+                printReceiptBtn.disabled = false;
+                printReceiptBtn.innerHTML = '<i class="fa-solid fa-print"></i> PRINT RECEIPT';
+            }
+            return;
+        }
 
         if (activePrinterSettings === 'BROWSER_PRINT') {
             showToast('OPENING SYSTEM PRINT DIALOG...', 'success');

@@ -204,6 +204,7 @@
                     <div class="pixel-form-group">
                         <label for="printerInterface">INTERFACE SELECT</label>
                         <select class="pixel-select" id="printerInterface">
+                            <option value="DIRECT">DIRECT PRINT (SILENT - NO DIALOG)</option>
                             <option value="BROWSER">STANDARD PRINTER (WINDOW.PRINT)</option>
                             <option value="WINDOWS">WINDOWS SPOOLER DRIVER (DLL)</option>
                             <option value="USB">USB PORT (WINDOWS DLL)</option>
@@ -212,6 +213,22 @@
                             <option value="LPT">LPT PORT (PARALLEL PORT)</option>
                             <option value="MOCK">DEMO MOCK PRINTER MODE</option>
                         </select>
+                    </div>
+
+                    <!-- Direct Print (Silent) Panel -->
+                    <div class="pixel-sub-panel" id="directSettingsPanel" style="display: block;">
+                        <div class="pixel-form-group">
+                            <label for="directPrinterSelect">SELECT PRINTER</label>
+                            <div class="pixel-input-row">
+                                <select class="pixel-select" id="directPrinterSelect">
+                                    <option value="">CLICK SCAN TO FIND PRINTERS</option>
+                                </select>
+                                <button type="button" class="pixel-btn" id="scanDirectBtn">
+                                    <i class="fa-solid fa-rotate"></i> SCAN
+                                </button>
+                            </div>
+                            <small class="pixel-help-text">Prints directly to the selected printer. No popup dialog. Uses SumatraPDF engine.</small>
+                        </div>
                     </div>
 
                     <!-- Windows Spooler Driver Panel -->

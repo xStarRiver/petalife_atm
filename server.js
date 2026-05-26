@@ -567,6 +567,30 @@ app.post('/api/printer/selftest', (req, res) => {
     res.json(result);
 });
 
+// Silent print - generates PDF and sends directly to printer without dialog
+app.post('/api/printer/silent-print', async (req, res) => {
+    const { user } = req.body;
+    if (!user) {
+        return res.status(400).json({ error: "Missing user information for print job" });
+    }
+    try {
+        const result = await printer.silentPrintReceipt(user);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// List all system printers (via pdf-to-printer library)
+app.get('/api/printer/system-list', async (req, res) => {
+    try {
+        const list = await printer.listSystemPrinters();
+        res.json({ printers: list });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 
 // WebSocket Server Connection Handler
 wss.on('connection', (ws, req) => {
