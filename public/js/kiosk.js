@@ -670,7 +670,9 @@ document.addEventListener('DOMContentLoaded', () => {
     openSettingsBtn.addEventListener('click', () => {
         playBeep(800, 0.05);
         settingsModal.classList.add('active');
-        updatePrinterStatus();
+        updatePrinterStatus().then(() => {
+            printerInterface.dispatchEvent(new Event('change'));
+        });
     });
 
     closeSettingsBtn.addEventListener('click', () => {
