@@ -506,8 +506,9 @@ async function silentPrintReceipt(user) {
         const pdfPath = await generateReceiptPDF(user);
         console.log(`[Direct Print] PDF generated: ${pdfPath}`);
 
-        // Use dynamic import for ESM pdf-to-printer
-        const { print } = await import('pdf-to-printer');
+        // Use dynamic import for ESM pdf-to-printer (exports are under .default in CJS)
+        const pdfToPrinter = await import('pdf-to-printer');
+        const { print } = pdfToPrinter.default;
         
         console.log(`[Direct Print] Sending to printer: ${directPrinterName}`);
         await print(pdfPath, {
@@ -531,7 +532,8 @@ async function silentPrintReceipt(user) {
 // List system printers using pdf-to-printer
 async function listSystemPrinters() {
     try {
-        const { getPrinters } = await import('pdf-to-printer');
+        const pdfToPrinter = await import('pdf-to-printer');
+        const { getPrinters } = pdfToPrinter.default;
         const printers = await getPrinters();
         return printers.map(p => p.name);
     } catch (err) {
