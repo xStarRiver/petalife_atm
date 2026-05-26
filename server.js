@@ -203,10 +203,11 @@ async function fetchCompleteUserProfile(scannedId) {
     if (!ddbDocClient) return null;
 
     try {
-        console.log(`[AWS Aggregator] Beginning multi-table fetch for enrollmentId: "${scannedId}"`);
+        console.log(`[AWS Aggregator] Beginning multi-table fetch for scannedId: "${scannedId}"`);
         
         let userId = null;
         let petId = null;
+        let enrollmentId = null;
         let petName = "Mochi"; // default fallback
         let petBreed = "Poodle";
         let petCategory = "dog";
@@ -216,68 +217,147 @@ async function fetchCompleteUserProfile(scannedId) {
         let stoolType = "Type 4";
         let condition = "Healthy";
         let latestStoolItem = null;
-        let hasEnrollment = false;
+        let hasData = false;
 
-        // Step 0: Scan petalife-okr1-enrollments to get userId and petId
+        // Context A: Check if scannedId is a Pet ID (ID in petalife-pet)
         try {
-            console.log(`[AWS Enrollments] Searching enrollment details...`);
-            const enrollRes = await ddbDocClient.send(new ScanCommand({
-                TableName: "petalife-okr1-enrollments",
-                FilterExpression: "enrollmentId = :enrollmentId",
-                ExpressionAttributeValues: {
-                    ":enrollmentId": scannedId
-                }
+            console.log(`[AWS Direct Lookup] Checking if ID "${scannedId}" is a Pet ID...`);
+            const petRes = await ddbDocClient.send(new GetCommand({
+                TableName: "petalife-pet",
+                Key: { ID: scannedId }
             }));
-            if (enrollRes.Items && enrollRes.Items.length > 0) {
-                const enrollment = enrollRes.Items[0];
-                userId = enrollment.userId || null;
-                petId = enrollment.petId || null;
-                hasEnrollment = true;
-                if (enrollment.petName) petName = enrollment.petName;
-                if (enrollment.petBreed) petBreed = enrollment.petBreed;
-                console.log(`[AWS Enrollments] Found enrollment. userId: "${userId}", petId: "${petId}", petName: "${petName}"`);
+            if (petRes.Item) {
+                console.log(`[AWS Direct Lookup] Scanned ID is a Pet ID! Pet Name: "${petRes.Item.petName}"`);
+                petId = scannedId;
+                userId = petRes.Item.userId || null;
+                petName = petRes.Item.petName || "Mochi";
+                petBreed = petRes.Item.breed ? petRes.Item.breed.replace("dogBreed.", "").replace("catBreed.", "").toUpperCase() : "Poodle";
+                petCategory = petRes.Item.selectedPet || "dog";
+                hasData = true;
             }
         } catch (e) {
-            console.error(`[AWS Enrollments Error]`, e.message);
+            console.log(`[AWS Pet ID Check Info] Scanned ID not a Direct Pet ID Key (or error): ${e.message}`);
         }
 
-        // Step 1: Query latest stool record from petalife-okr1-stool-records (filtering out cached insights)
-        try {
-            console.log(`[AWS Stool Records] Querying latest stool logs...`);
-            const stoolRes = await ddbDocClient.send(new QueryCommand({
-                TableName: "petalife-okr1-stool-records",
-                KeyConditionExpression: "enrollmentId = :enrollmentId",
-                FilterExpression: "attribute_exists(userId) AND attribute_exists(petId)",
-                ExpressionAttributeValues: {
-                    ":enrollmentId": scannedId
-                },
-                ScanIndexForward: false, // latest first
-                Limit: 5 // Get a few to account for cached insight entries
-            }));
-            
-            if (stoolRes.Items && stoolRes.Items.length > 0) {
-                latestStoolItem = stoolRes.Items[0];
-                userId = latestStoolItem.userId || userId;
-                petId = latestStoolItem.petId || petId;
-                trackingDay = latestStoolItem.dayNumber || 1;
-                progress = latestStoolItem.dayNumber || 1;
-                
-                if (latestStoolItem.analysisResult) {
-                    stoolType = latestStoolItem.analysisResult.bssLabel || `Type ${latestStoolItem.analysisResult.bssType || 4}`;
-                    condition = latestStoolItem.analysisResult.colorLabel || "Healthy";
-                }
-                console.log(`[AWS Stool Records] Found stool entry. userId: "${userId}", petId: "${petId}", trackingDay: ${trackingDay}`);
-            } else {
-                console.log(`[AWS Stool Records] No stool records found for enrollmentId: "${scannedId}"`);
-            }
-        } catch (e) {
-            console.error(`[AWS Stool Records Error]`, e.message);
-        }
-
-        // Step 3: Fetch Pet Profile from petalife-pet
-        if (petId) {
+        // Context B: Check if scannedId is an Enrollment ID
+        if (!hasData) {
             try {
-                console.log(`[AWS Pet Profile] Fetching pet name for ID: "${petId}"...`);
+                console.log(`[AWS Direct Lookup] Checking if ID "${scannedId}" is an Enrollment ID...`);
+                const enrollRes = await ddbDocClient.send(new ScanCommand({
+                    TableName: "petalife-okr1-enrollments",
+                    FilterExpression: "enrollmentId = :enrollmentId",
+                    ExpressionAttributeValues: {
+                        ":enrollmentId": scannedId
+                    }
+                }));
+                if (enrollRes.Items && enrollRes.Items.length > 0) {
+                    const enrollment = enrollRes.Items[0];
+                    enrollmentId = scannedId;
+                    userId = enrollment.userId || null;
+                    petId = enrollment.petId || null;
+                    if (enrollment.petName) petName = enrollment.petName;
+                    if (enrollment.petBreed) petBreed = enrollment.petBreed;
+                    hasData = true;
+                    console.log(`[AWS Enrollments] Found enrollment. userId: "${userId}", petId: "${petId}"`);
+                }
+            } catch (e) {
+                console.error(`[AWS Enrollment Check Error]`, e.message);
+            }
+        }
+
+        // Context C: Check if scannedId is a User ID
+        if (!hasData) {
+            try {
+                console.log(`[AWS Direct Lookup] Checking if ID "${scannedId}" is a User ID...`);
+                const pcoinRes = await ddbDocClient.send(new GetCommand({
+                    TableName: "petalife-pcoin-balances",
+                    Key: { userId: scannedId }
+                }));
+                if (pcoinRes.Item) {
+                    userId = scannedId;
+                    hasData = true;
+                    console.log(`[AWS P Coin] Found User ID from balances table: "${userId}"`);
+                }
+            } catch (e) {
+                console.log(`[AWS User ID Check Info] Scanned ID not a Direct User ID (or error): ${e.message}`);
+            }
+        }
+
+        // If we found a User ID but no Pet ID yet, search their pets
+        if (userId && !petId) {
+            try {
+                console.log(`[AWS Pet Search] Searching pets for userId: "${userId}"...`);
+                const petSearchRes = await ddbDocClient.send(new ScanCommand({
+                    TableName: "petalife-pet",
+                    FilterExpression: "userId = :userId",
+                    ExpressionAttributeValues: { ":userId": userId }
+                }));
+                if (petSearchRes.Items && petSearchRes.Items.length > 0) {
+                    const petItem = petSearchRes.Items[0];
+                    petId = petItem.ID;
+                    petName = petItem.petName || petName;
+                    petBreed = petItem.breed ? petItem.breed.replace("dogBreed.", "").replace("catBreed.", "").toUpperCase() : petBreed;
+                    petCategory = petItem.selectedPet || petCategory;
+                    console.log(`[AWS Pet Search] Found pet: "${petName}"`);
+                }
+            } catch (e) {
+                console.error(`[AWS Pet Search Error]`, e.message);
+            }
+        }
+
+        // Load Stool Records if we have enrollmentId or petId
+        if (enrollmentId || petId) {
+            try {
+                console.log(`[AWS Stool Records] Querying latest stool logs...`);
+                let stoolRes;
+                if (enrollmentId) {
+                    stoolRes = await ddbDocClient.send(new QueryCommand({
+                        TableName: "petalife-okr1-stool-records",
+                        KeyConditionExpression: "enrollmentId = :enrollmentId",
+                        FilterExpression: "attribute_exists(userId) AND attribute_exists(petId)",
+                        ExpressionAttributeValues: {
+                            ":enrollmentId": enrollmentId
+                        },
+                        ScanIndexForward: false, // latest first
+                        Limit: 5
+                    }));
+                } else {
+                    // Fallback: Scan stool records by petId
+                    stoolRes = await ddbDocClient.send(new ScanCommand({
+                        TableName: "petalife-okr1-stool-records",
+                        FilterExpression: "petId = :petId",
+                        ExpressionAttributeValues: {
+                            ":petId": petId
+                        }
+                    }));
+                }
+                
+                if (stoolRes.Items && stoolRes.Items.length > 0) {
+                    // Sort items by timestamp descending
+                    const sortedStools = stoolRes.Items.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    latestStoolItem = sortedStools[0];
+                    userId = latestStoolItem.userId || userId;
+                    petId = latestStoolItem.petId || petId;
+                    trackingDay = latestStoolItem.dayNumber || 1;
+                    progress = latestStoolItem.dayNumber || 1;
+                    
+                    if (latestStoolItem.analysisResult) {
+                        stoolType = latestStoolItem.analysisResult.bssLabel || `Type ${latestStoolItem.analysisResult.bssType || 4}`;
+                        condition = latestStoolItem.analysisResult.colorLabel || "Healthy";
+                    }
+                    console.log(`[AWS Stool Records] Found stool entry. userId: "${userId}", petId: "${petId}", trackingDay: ${trackingDay}`);
+                } else {
+                    console.log(`[AWS Stool Records] No stool records found for enrollmentId/petId: "${enrollmentId || petId}"`);
+                }
+            } catch (e) {
+                console.error(`[AWS Stool Records Error]`, e.message);
+            }
+        }
+
+        // Fetch Pet Profile details if not already loaded (e.g. if we resolved via User ID / Stool Record)
+        if (petId && !hasData) {
+            try {
+                console.log(`[AWS Pet Profile] Fetching pet details for ID: "${petId}"...`);
                 const petRes = await ddbDocClient.send(new GetCommand({
                     TableName: "petalife-pet",
                     Key: { ID: petId }
@@ -293,7 +373,7 @@ async function fetchCompleteUserProfile(scannedId) {
             }
         }
 
-        // Step 4: Fetch P Coin points balance from petalife-pcoin-balances
+        // Fetch P Coin points balance from petalife-pcoin-balances
         if (userId) {
             try {
                 console.log(`[AWS P Coin] Fetching balance for userId: "${userId}"...`);
@@ -310,8 +390,8 @@ async function fetchCompleteUserProfile(scannedId) {
             }
         }
 
-        // Compile aggregate profile if we loaded at least a stool record, user, pet, or found an enrollment
-        if (userId || petId || latestStoolItem || hasEnrollment) {
+        // Compile aggregate profile if we resolved any contextual data
+        if (userId || petId || latestStoolItem || hasData) {
             const displayIdVal = userId ? userId.substring(0, 6).toUpperCase() : scannedId.substring(0, 6).toUpperCase();
             
             return {
@@ -337,7 +417,7 @@ async function fetchCompleteUserProfile(scannedId) {
             };
         }
 
-        console.log(`[AWS Aggregator] No real records found for enrollmentId "${scannedId}".`);
+        console.log(`[AWS Aggregator] No real records found for scanned ID "${scannedId}".`);
         return null;
 
     } catch (err) {
