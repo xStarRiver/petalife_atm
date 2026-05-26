@@ -592,19 +592,38 @@ body::before {
         max-height: 0px;
     }
     100% {
-        max-height: 520px; /* Full receipt display */
+        max-height: 894px; /* Scaled exactly to 223.40mm x 80mm paper size */
     }
 }
 
 /* The Retro Paper Receipt Card */
 .pixel-paper-receipt {
     width: 100%;
-    background-color: #ffffff;
-    font-family: var(--font-body);
-    font-size: 1.25rem;
-    line-height: 1.3;
-    padding: 20px 16px 8px 16px;
+    height: 894px; /* Exact 223.40mm x 80mm scale */
+    box-sizing: border-box;
+    background-color: #f4c965; /* Beautiful retro gold background */
+    border: 4px solid var(--pixel-charcoal);
+    padding: 10px 10px 4px 10px; /* leaves gold border around the white card */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
     color: var(--pixel-charcoal);
+}
+
+.pixel-receipt-body {
+    flex-grow: 1;
+    background-color: #ffffff;
+    border: 3px solid var(--pixel-charcoal);
+    border-radius: 4px;
+    padding: 12px 10px 4px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    outline: 3px dashed #f4c965; /* Dashed gold outline inside the white card */
+    outline-offset: -8px;
+    box-sizing: border-box;
+    height: calc(100% - 6px);
 }
 
 .receipt-pixel-header {
@@ -694,18 +713,18 @@ body::before {
     height: 76px !important;
 }
 
-/* Beautiful Jagged Pixelated Cut bottom edge */
+/* Beautiful Jagged Pixelated Cut bottom edge (Gold jagged tear) */
 .pixel-receipt-cut-edge {
     height: 8px;
     background-image: 
-        linear-gradient(135deg, transparent 40%, #ffffff 40%, #ffffff 60%, transparent 60%),
-        linear-gradient(45deg, transparent 40%, #ffffff 40%, #ffffff 60%, transparent 60%);
+        linear-gradient(135deg, transparent 40%, #f4c965 40%, #f4c965 60%, transparent 60%),
+        linear-gradient(45deg, transparent 40%, #f4c965 40%, #f4c965 60%, transparent 60%);
     background-size: 8px 8px;
     background-repeat: repeat-x;
     position: relative;
-    width: calc(100% + 32px); /* extends over margins */
-    left: -16px;
-    bottom: -8px;
+    width: calc(100% + 20px); /* extends over gold margins */
+    left: -10px;
+    bottom: -4px;
     z-index: 10;
 }
 
