@@ -6,6 +6,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let activePrinterSettings = null;
     let html5QrScanner = null;
 
+    // Helper to route printer API requests to local port 3000 if running in Vercel cloud
+    function getApiRoot(url) {
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && !window.location.hostname.startsWith('192.168.')) {
+            if (url.startsWith('/api/printer/')) {
+                return `http://localhost:3000${url}`;
+            }
+        }
+        return url;
+    }
+
     // DOM Elements
     const liveClock = document.getElementById('liveClock');
     const quickStatusPill = document.getElementById('quickStatusPill');
@@ -312,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --------------------------------------------------
     async function updatePrinterStatus() {
         try {
-            const res = await fetch('/api/printer/status');
+            const res = await fetch(getApiRoot('/api/printer/status'));
             const data = await res.json();
 
             // Modal Status UI
@@ -413,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
             scanWindowsBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ...';
             
             try {
-                const res = await fetch('/api/printer/windows-list');
+                const res = await fetch(getApiRoot('/api/printer/windows-list'));
                 const data = await res.json();
                 
                 windowsPrinterSelect.innerHTML = '';
@@ -449,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scanUsbBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ...';
         
         try {
-            const res = await fetch('/api/printer/list');
+            const res = await fetch(getApiRoot('/api/printer/list'));
             const data = await res.json();
             
             usbSelect.innerHTML = '';
@@ -520,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
         connectPrinterBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ...';
 
         try {
-            const res = await fetch('/api/printer/connect', {
+            const res = await fetch(getApiRoot('/api/printer/connect'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ settings: connectionString })
@@ -551,7 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
     disconnectPrinterBtn.addEventListener('click', async () => {
         playBeep(400, 0.1);
         try {
-            const res = await fetch('/api/printer/disconnect', { method: 'POST' });
+            const res = await fetch(getApiRoot('/api/printer/disconnect'), { method: 'POST' });
             const data = await res.json();
             if (data.success) {
                 activePrinterSettings = null;
@@ -575,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
         testPrintBtn.disabled = true;
         testPrintBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ...';
         try {
-            const res = await fetch('/api/printer/selftest', { method: 'POST' });
+            const res = await fetch(getApiRoot('/api/printer/selftest'), { method: 'POST' });
             const data = await res.json();
             if (data.success) {
                 playBeep(1100, 0.1);
@@ -624,7 +634,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(async () => {
             clearInterval(synthBuzz);
             try {
-                const res = await fetch('/api/printer/print', {
+                const res = await fetch(getApiRoot('/api/printer/print'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ user: currentUser })
