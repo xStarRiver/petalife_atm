@@ -495,6 +495,32 @@ app.get('/api/printer/status', (req, res) => {
     res.json(printer.getStatus());
 });
 
+app.get('/api/printer/windows-list', async (req, res) => {
+    try {
+        const { exec } = require('child_process');
+        exec('powershell -Command "Get-Printer | Select-Object -ExpandProperty Name"', (err, stdout, stderr) => {
+            if (err) {
+                exec('powershell -Command "Get-CimInstance Win32_Printer | Select-Object -ExpandProperty Name"', (err2, stdout2) => {
+                    if (err2) {
+                        return res.json({ printers: [] });
+                    }
+                    const list = stdout2.split('\r\n').join('\n').split('\n')
+                        .map(l => l.trim())
+                        .filter(l => l.length > 0);
+                    return res.json({ printers: list });
+                });
+                return;
+            }
+            const list = stdout.split('\r\n').join('\n').split('\n')
+                .map(l => l.trim())
+                .filter(l => l.length > 0);
+            res.json({ printers: list });
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.get('/api/printer/list', async (req, res) => {
     try {
         const list = await printer.listPrinters();

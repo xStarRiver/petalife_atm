@@ -204,12 +204,30 @@
                     <div class="pixel-form-group">
                         <label for="printerInterface">INTERFACE SELECT</label>
                         <select class="pixel-select" id="printerInterface">
+                            <option value="BROWSER">STANDARD PRINTER (WINDOW.PRINT)</option>
+                            <option value="WINDOWS">WINDOWS SPOOLER DRIVER (DLL)</option>
                             <option value="USB">USB PORT (WINDOWS DLL)</option>
                             <option value="COM">COM PORT (SERIAL PORT)</option>
                             <option value="NET">ETHERNET PORT (IP ADDRESS)</option>
                             <option value="LPT">LPT PORT (PARALLEL PORT)</option>
                             <option value="MOCK">DEMO MOCK PRINTER MODE</option>
                         </select>
+                    </div>
+
+                    <!-- Windows Spooler Driver Panel -->
+                    <div class="pixel-sub-panel" id="windowsSettingsPanel" style="display: none;">
+                        <div class="pixel-form-group">
+                            <label for="windowsPrinterSelect">DETECTED SYSTEM PRINTERS</label>
+                            <div class="pixel-input-row">
+                                <select class="pixel-select" id="windowsPrinterSelect">
+                                    <option value="">NO PRINTERS FOUND. CLICK SCAN.</option>
+                                </select>
+                                <button type="button" class="pixel-btn" id="scanWindowsBtn">
+                                    <i class="fa-solid fa-rotate"></i> SCAN
+                                </button>
+                            </div>
+                            <small class="pixel-help-text">Scans printers installed in your Windows Control Panel via PowerShell.</small>
+                        </div>
                     </div>
 
                     <!-- USB Settings Panel -->

@@ -98,6 +98,11 @@ function connectPrinter(settings) {
         activeSettings = settings;
         console.log(`[Mock Printer] Connected using settings: ${settings}`);
         return { success: true, message: `Connected to Mock Printer (${settings})` };
+    } else if (settings === 'BROWSER_PRINT' || (typeof settings === 'string' && settings.toUpperCase().includes('BROWSER'))) {
+        isMock = true;
+        activeSettings = settings;
+        console.log(`[Browser Printer] Set active printer to browser print`);
+        return { success: true, message: `Connected to Browser Print` };
     } else {
         // Only allow switching to hardware mode if DLL is loaded
         if (lib !== null) {
@@ -175,30 +180,40 @@ function disconnectPrinter() {
 // Get Printer Status
 function getStatus() {
     if (isMock) {
+        if (activeSettings === 'BROWSER_PRINT') {
+            return { 
+                connected: true, 
+                status: 'Browser Standard Print Mode', 
+                code: 0x12,
+                isMock: true,
+                settings: activeSettings
+            };
+        }
         return { 
             connected: activeSettings !== null, 
             status: activeSettings ? 'Ready' : 'Disconnected', 
             code: 0x12,
-            isMock: true 
+            isMock: true,
+            settings: activeSettings
         };
     }
 
     if (!printerHandle) {
-        return { connected: false, status: 'Not Connected', code: -1 };
+        return { connected: false, status: 'Not Connected', code: -1, settings: null };
     }
 
     try {
         const statusBuf = Buffer.alloc(4);
         let ret = GetPrinterState(printerHandle, statusBuf);
         if (ret !== 0) {
-            return { connected: true, status: `Status Error (Code: ${ret})`, code: ret };
+            return { connected: true, status: `Status Error (Code: ${ret})`, code: ret, settings: activeSettings };
         }
 
         const status = statusBuf.readUInt32LE(0);
         
         // Parse status byte
         if (status === 0x12) {
-            return { connected: true, status: 'Ready', code: status };
+            return { connected: true, status: 'Ready', code: status, settings: activeSettings };
         }
 
         let errors = [];
@@ -208,10 +223,10 @@ function getStatus() {
         if (status & 0x40) errors.push('Error condition');
 
         const statusStr = errors.length > 0 ? errors.join(', ') : `Unknown Status (${status})`;
-        return { connected: true, status: statusStr, code: status };
+        return { connected: true, status: statusStr, code: status, settings: activeSettings };
     } catch (err) {
         console.error('Error getting printer status:', err);
-        return { connected: false, status: `Error: ${err.message}`, code: -2 };
+        return { connected: false, status: `Error: ${err.message}`, code: -2, settings: activeSettings };
     }
 }
 

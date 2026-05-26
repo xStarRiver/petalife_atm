@@ -30,12 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const printerSettingsForm = document.getElementById('printerSettingsForm');
 
     // Sub-panels in settings form
+    const windowsPanel = document.getElementById('windowsSettingsPanel');
     const usbPanel = document.getElementById('usbSettingsPanel');
     const comPanel = document.getElementById('comSettingsPanel');
     const netPanel = document.getElementById('netSettingsPanel');
     const lptPanel = document.getElementById('lptSettingsPanel');
 
     // Settings inputs
+    const windowsPrinterSelect = document.getElementById('windowsPrinterSelect');
+    const scanWindowsBtn = document.getElementById('scanWindowsBtn');
     const usbSelect = document.getElementById('usbDeviceSelect');
     const usbPathInput = document.getElementById('usbDevicePath');
     const scanUsbBtn = document.getElementById('scanUsbBtn');
@@ -314,6 +317,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Modal Status UI
             if (data.connected) {
+                activePrinterSettings = data.settings;
+                
+                // Sync UI modal selector if setting is active
+                if (data.settings) {
+                    const val = data.settings;
+                    if (val === 'BROWSER_PRINT') {
+                        printerInterface.value = 'BROWSER';
+                    } else if (val.startsWith('DRV,')) {
+                        printerInterface.value = 'WINDOWS';
+                        const prName = val.substring(4);
+                        windowsPrinterSelect.innerHTML = '';
+                        const opt = document.createElement('option');
+                        opt.value = prName;
+                        opt.textContent = prName;
+                        windowsPrinterSelect.appendChild(opt);
+                    } else if (val === 'MOCK_PRINTER_INTERFACE') {
+                        printerInterface.value = 'MOCK';
+                    } else if (val.startsWith('USB') || val.startsWith('\\\\')) {
+                        printerInterface.value = 'USB';
+                        usbPathInput.value = val;
+                    } else if (val.startsWith('COM')) {
+                        printerInterface.value = 'COM';
+                        const parts = val.split(',');
+                        comPortInput.value = parts[0] || 'COM1';
+                        if (parts[1]) comBaudrateSelect.value = parts[1];
+                    } else if (val.startsWith('NET,')) {
+                        printerInterface.value = 'NET';
+                        const host = val.substring(4);
+                        netHostInput.value = host;
+                    } else if (val.startsWith('LPT')) {
+                        printerInterface.value = 'LPT';
+                        lptPortSelect.value = val;
+                    }
+                    // Dispatch change event to toggle panels visibility
+                    printerInterface.dispatchEvent(new Event('change'));
+                }
+
                 connectionStatusVal.textContent = data.isMock ? `MOCK PRINTER MODE (${data.status})` : `CONNECTED: ${data.status}`;
                 connectionStatusVal.className = 'pixel-status-value connected';
                 disconnectPrinterBtn.style.display = 'block';
@@ -324,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusPillIndicator.className = 'pixel-status-indicator green';
 
                 // Kiosk active hardware block
-                if (activePrinterSetting) activePrinterSetting.textContent = activePrinterSettings ? activePrinterSettings.toUpperCase() : 'STANDARD';
+                if (activePrinterSetting) activePrinterSetting.textContent = activePrinterSettings ? activePrinterSettings.toUpperCase().replace('_PRINT', '') : 'STANDARD';
                 if (hardwareStateText) {
                     hardwareStateText.textContent = data.status.toUpperCase();
                     hardwareStateText.style.color = 'var(--pixel-accent)';
@@ -351,17 +391,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Interface switch helper
     printerInterface.addEventListener('change', () => {
+        if (windowsPanel) windowsPanel.style.display = 'none';
         usbPanel.style.display = 'none';
         comPanel.style.display = 'none';
         netPanel.style.display = 'none';
         lptPanel.style.display = 'none';
 
         const choice = printerInterface.value;
-        if (choice === 'USB') usbPanel.style.display = 'block';
+        if (choice === 'WINDOWS' && windowsPanel) windowsPanel.style.display = 'block';
+        else if (choice === 'USB') usbPanel.style.display = 'block';
         else if (choice === 'COM') comPanel.style.display = 'block';
         else if (choice === 'NET') netPanel.style.display = 'block';
         else if (choice === 'LPT') lptPanel.style.display = 'block';
     });
+
+    // Windows printer scan devices call
+    if (scanWindowsBtn) {
+        scanWindowsBtn.addEventListener('click', async () => {
+            playBeep(700, 0.05);
+            scanWindowsBtn.disabled = true;
+            scanWindowsBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ...';
+            
+            try {
+                const res = await fetch('/api/printer/windows-list');
+                const data = await res.json();
+                
+                windowsPrinterSelect.innerHTML = '';
+                if (data.printers && data.printers.length > 0) {
+                    data.printers.forEach(printerStr => {
+                        const opt = document.createElement('option');
+                        opt.value = printerStr;
+                        opt.textContent = printerStr;
+                        windowsPrinterSelect.appendChild(opt);
+                    });
+                    showToast(`FOUND ${data.printers.length} PRINTERS`, 'success');
+                } else {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = 'NO DEVICES FOUND. CLICK SCAN.';
+                    windowsPrinterSelect.appendChild(opt);
+                    showToast('NO WINDOWS PRINTERS DETECTED', 'info');
+                }
+            } catch (err) {
+                console.error('Windows printer scan fail:', err);
+                showToast('SCAN FAILED', 'error');
+            } finally {
+                scanWindowsBtn.disabled = false;
+                scanWindowsBtn.innerHTML = '<i class="fa-solid fa-rotate"></i> SCAN';
+            }
+        });
+    }
 
     // USB scan devices call
     scanUsbBtn.addEventListener('click', async () => {
@@ -404,7 +483,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const choice = printerInterface.value;
         let connectionString = '';
 
-        if (choice === 'USB') {
+        if (choice === 'WINDOWS') {
+            const selectedPrinter = windowsPrinterSelect.value;
+            if (selectedPrinter) {
+                connectionString = `DRV,${selectedPrinter}`;
+            } else {
+                connectionString = 'DRV,';
+            }
+        } else if (choice === 'USB') {
             const selectedUsb = usbSelect.value;
             const customPath = usbPathInput.value.trim();
             if (customPath) {
@@ -426,6 +512,8 @@ document.addEventListener('DOMContentLoaded', () => {
             connectionString = port;
         } else if (choice === 'MOCK') {
             connectionString = 'MOCK_PRINTER_INTERFACE';
+        } else if (choice === 'BROWSER') {
+            connectionString = 'BROWSER_PRINT';
         }
 
         connectPrinterBtn.disabled = true;
@@ -478,6 +566,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Test print self page action
     testPrintBtn.addEventListener('click', async () => {
         playBeep(600, 0.05);
+        if (activePrinterSettings === 'BROWSER_PRINT') {
+            showToast('TEST PRINT VIA SYSTEM PRINT DIALOG', 'success');
+            playBeep(1100, 0.1);
+            window.print();
+            return;
+        }
         testPrintBtn.disabled = true;
         testPrintBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ...';
         try {
@@ -505,6 +599,14 @@ document.addEventListener('DOMContentLoaded', () => {
     printReceiptBtn.addEventListener('click', async () => {
         if (!currentUser) return;
         playBeep(700, 0.08);
+
+        if (activePrinterSettings === 'BROWSER_PRINT') {
+            showToast('OPENING SYSTEM PRINT DIALOG...', 'success');
+            playBeep(1000, 0.1);
+            setTimeout(() => playBeep(1300, 0.15), 100);
+            window.print();
+            return;
+        }
 
         // Show mechanical printing strip overlay
         printOverlay.classList.add('active');

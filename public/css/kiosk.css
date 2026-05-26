@@ -1372,3 +1372,114 @@ select.pixel-select {
     filter: brightness(1.1);
 }
 
+/* -------------------------------------------------------------
+ * PRINT MEDIA STYLES - Browser Standard Print Mode
+ * ------------------------------------------------------------- */
+@media print {
+    /* Hide all browser headers, footers, margins */
+    @page {
+        size: 80mm 223.40mm;
+        margin: 0;
+    }
+    
+    html, body {
+        width: 80mm !important;
+        height: 223.40mm !important;
+        background: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+
+    /* Hide absolutely everything except the receipt itself */
+    .kiosk-pixel-container > header,
+    .pixel-header,
+    .pixel-actions-row,
+    .pixel-print-overlay,
+    .pixel-modal-overlay,
+    .pixel-toast-container,
+    #startWebcamBtn,
+    .pixel-scanner-zone,
+    .pixel-instruction-block,
+    .pixel-qr-section,
+    .pixel-tip-box,
+    #idleScreen,
+    .pixel-printer-device,
+    .printer-mouth-slot {
+        display: none !important;
+    }
+
+    /* Reset layouts for the viewport and parent elements to prevent screens from clipping */
+    .pixel-screen-viewport,
+    .pixel-screen-card,
+    .receipt-centered-layout,
+    .pixel-printer-preview-container,
+    .receipt-paper-roll-wrapper {
+        display: block !important;
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 80mm !important;
+        height: 223.40mm !important;
+        position: static !important;
+        overflow: visible !important;
+    }
+
+    /* Force the receipt card to be full size 80mm x 223.40mm */
+    .pixel-paper-receipt {
+        display: flex !important;
+        width: 80mm !important;
+        height: 223.40mm !important;
+        box-sizing: border-box !important;
+        padding: 10px 10px 4px 10px !important;
+        border: 4px solid #252422 !important;
+        background-color: #f4c965 !important;
+        /* Force color backgrounds to print in Chrome/Edge/Firefox */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        margin: 0 !important;
+    }
+
+    .pixel-receipt-body {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        background-color: white !important;
+        border: 3px solid #252422 !important;
+        outline: 3px dashed #f4c965 !important;
+        outline-offset: -8px !important;
+        box-sizing: border-box !important;
+        height: calc(100% - 6px) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .receipt-poop-bank-title {
+        background-color: #f4c965 !important;
+        border: 3px solid #252422 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .receipt-pixel-footer-banner {
+        background-color: #f4c965 !important;
+        border: 4px solid #252422 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .pixel-poodle-box {
+        border: 3px solid #252422 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .pixel-receipt-cut-edge {
+        display: block !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
