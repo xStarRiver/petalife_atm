@@ -44,6 +44,10 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'kiosk.html'));
+});
+
 // Mock "AWS Database" of User & Pet Information
 const mockDatabase = {
     "d78ac515-e85d-4d25-9a23-5b07438a28b4": {

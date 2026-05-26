@@ -6,11 +6,10 @@
       "use": "@vercel/node"
     }
   ],
-  "redirects": [
+  "rewrites": [
     {
       "source": "/",
-      "destination": "/kiosk.html",
-      "permanent": false
+      "destination": "/kiosk.html"
     }
   ],
   "routes": [
