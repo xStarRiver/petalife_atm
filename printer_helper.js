@@ -239,28 +239,23 @@ function printReceipt(user) {
     const displayId = user.displayId || (user.id ? user.id.substring(0, 6).toUpperCase() : '------');
     const petName = user.petName || 'Mochi';
     const petCategory = user.petCategory || 'Dog';
-    const location = user.location || 'Mall 2/F';
+    const petBreed = user.petBreed || 'Poodle';
     const points = user.points || 0;
     const pointsToday = user.pointsDeposited || 0;
     const trackingDay = user.trackingDay || 1;
     const stoolType = user.stoolType || 'Type 4';
     const condition = user.condition || 'Healthy';
-    const rewardTitle = user.rewardTitle || 'Free Pet Photoboth Session';
-    const rewardSubtitle = user.rewardSubtitle || 'Digital Version';
-    const rewardChinese = user.rewardChinese || '免費寵物自拍館拍攝 (電子版)';
 
     if (isMock) {
         console.log('\n=================== MOCK PRINT RECEIPT ===================');
         console.log('            便便銀行 | POOP BANK');
         console.log('              DEPOSIT RECEIPT');
         console.log('--------------------------------------------------');
-        console.log(`Name      : ${user.name || '---'}`);
-        console.log(`Tier      : ${user.tier || '---'}`);
         console.log(`User ID   : ${displayId}`);
-        console.log(`Pet       : ${petName}`);
+        console.log(`Pet Name  : ${petName}`);
         console.log(`Category  : ${petCategory.toUpperCase()}`);
+        console.log(`Breed     : ${petBreed.toUpperCase()}`);
         console.log(`Date      : ${dateStr}`);
-        console.log(`Location  : ${location}`);
         console.log('--------------------------------------------------');
         console.log('🐾 ACCOUNT SUMMARY');
         console.log(`P-Coins   : ${points} P-Coins`);
@@ -271,16 +266,6 @@ function printReceipt(user) {
         console.log('🐾 DEPOSIT DETAILS');
         console.log(`Stool Type: ${stoolType}`);
         console.log(`Condition : ${condition}`);
-        console.log('--------------------------------------------------');
-        console.log('🐾 REWARD CREDITED');
-        console.log(`${rewardTitle}`);
-        console.log(`${rewardSubtitle}`);
-        console.log(`${rewardChinese}`);
-        console.log('--------------------------------------------------');
-        console.log('🐾 NEXT STEP');
-        console.log('Continue daily scan to unlock:');
-        console.log('-> Day 7 Reward');
-        console.log('-> Dyson Pencil Wash for 30 days log');
         console.log('--------------------------------------------------');
         console.log(`BARCODE   : [${user.id}]`);
         console.log(`QR CODE   : [https://petalife.com/member/${user.id}]`);
@@ -293,7 +278,7 @@ function printReceipt(user) {
     }
 
     try {
-        console.log(`Printing receipt for user: ${user.name}...`);
+        console.log(`Printing receipt for pet: ${petName}...`);
         
         // Initialize
         PrinterInitialize(printerHandle);
@@ -309,13 +294,11 @@ function printReceipt(user) {
 
         // Meta Info
         SetAlign(printerHandle, 0); // Left
-        PrintTextS(printerHandle, `Name      : ${user.name || '---'}\n`);
-        PrintTextS(printerHandle, `Tier      : ${user.tier || '---'}\n`);
         PrintTextS(printerHandle, `User ID   : ${displayId}\n`);
-        PrintTextS(printerHandle, `Pet       : ${petName}\n`);
+        PrintTextS(printerHandle, `Pet Name  : ${petName}\n`);
         PrintTextS(printerHandle, `Category  : ${petCategory.toUpperCase()}\n`);
+        PrintTextS(printerHandle, `Breed     : ${petBreed.toUpperCase()}\n`);
         PrintTextS(printerHandle, `Date      : ${dateStr}\n`);
-        PrintTextS(printerHandle, `Location  : ${location}\n`);
         PrintTextS(printerHandle, "--------------------------------\n");
 
         // Account Summary
@@ -330,20 +313,6 @@ function printReceipt(user) {
         PrintTextS(printerHandle, "🐾 DEPOSIT DETAILS\n");
         PrintTextS(printerHandle, `Stool Type: ${stoolType}\n`);
         PrintTextS(printerHandle, `Condition : ${condition}\n`);
-        PrintTextS(printerHandle, "--------------------------------\n");
-
-        // Reward Credited
-        PrintTextS(printerHandle, "🐾 REWARD CREDITED\n");
-        PrintTextS(printerHandle, `${rewardTitle}\n`);
-        PrintTextS(printerHandle, `${rewardSubtitle}\n`);
-        PrintTextS(printerHandle, `${rewardChinese}\n`);
-        PrintTextS(printerHandle, "--------------------------------\n");
-
-        // Next Step
-        PrintTextS(printerHandle, "🐾 NEXT STEP\n");
-        PrintTextS(printerHandle, "Continue daily scan to unlock:\n");
-        PrintTextS(printerHandle, "-> Day 7 Reward\n");
-        PrintTextS(printerHandle, "-> Dyson Pencil Wash for 30 days log\n");
         PrintTextS(printerHandle, "--------------------------------\n");
 
         // Footer Thank you

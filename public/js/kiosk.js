@@ -187,14 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayReceipt(user) {
         currentUser = user;
 
-        // User info panel
+        // User info panel (left panel/quick header elements if they exist)
         if (userAvatar) userAvatar.src = user.petAvatar || 'images/pixel_poodle.png';
         if (userName) userName.textContent = user.name;
         if (userTier) userTier.textContent = user.tier;
-        
-        // Set Name & Tier on receipt paper
-        if (rName) rName.textContent = user.name || '---';
-        if (rTier) rTier.textContent = user.tier || '---';
         
         // Receipt details (formatting date dynamically to match image)
         const dateStr = new Date().toLocaleString('zh-CN', { 
@@ -206,17 +202,32 @@ document.addEventListener('DOMContentLoaded', () => {
             hour12: false 
         }).replace(/\//g, '-');
         
-        rDate.textContent = dateStr;
-        rMemberId.textContent = user.displayId || user.id.substring(0, 6).toUpperCase();
+        const rDateEl = document.getElementById('rDate');
+        if (rDateEl) rDateEl.textContent = dateStr;
+
+        const rMemberIdEl = document.getElementById('rMemberId');
+        if (rMemberIdEl) rMemberIdEl.textContent = user.displayId || user.id.substring(0, 6).toUpperCase();
         
-        document.getElementById('rPetName').textContent = user.petName || 'MOCHI';
-        if (rPetCategory) rPetCategory.textContent = (user.petCategory || 'Dog').toUpperCase();
-        document.getElementById('rLocation').textContent = user.location || 'MALL 2/F';
-        document.getElementById('rPetAvatar').src = user.petAvatar || 'images/pixel_poodle.png';
+        const rPetNameEl = document.getElementById('rPetName');
+        if (rPetNameEl) rPetNameEl.textContent = user.petName || 'MOCHI';
+
+        const rPetCategoryEl = document.getElementById('rPetCategory');
+        if (rPetCategoryEl) rPetCategoryEl.textContent = (user.petCategory || 'Dog').toUpperCase();
+
+        const rPetBreedEl = document.getElementById('rPetBreed');
+        if (rPetBreedEl) rPetBreedEl.textContent = (user.petBreed || 'Poodle').toUpperCase();
+
+        const rPetAvatarEl = document.getElementById('rPetAvatar');
+        if (rPetAvatarEl) rPetAvatarEl.src = user.petAvatar || 'images/pixel_poodle.png';
         
-        document.getElementById('rPoints').textContent = user.points || 0;
-        document.getElementById('rPointsToday').textContent = user.pointsDeposited || 0;
-        document.getElementById('rTrackingDay').textContent = `Day ${user.trackingDay || 1}`;
+        const rPointsEl = document.getElementById('rPoints');
+        if (rPointsEl) rPointsEl.textContent = user.points || 0;
+
+        const rPointsTodayEl = document.getElementById('rPointsToday');
+        if (rPointsTodayEl) rPointsTodayEl.textContent = user.pointsDeposited || 0;
+
+        const rTrackingDayEl = document.getElementById('rTrackingDay');
+        if (rTrackingDayEl) rTrackingDayEl.textContent = `Day ${user.trackingDay || 1}`;
         
         // Render 8-day progress blocks (e.g. ■ ■ ■ ■ ■ □ □ □)
         const progressCount = user.progress || 0;
@@ -224,14 +235,14 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < 8; i++) {
             progressStr += i < progressCount ? '■ ' : '□ ';
         }
-        document.getElementById('rProgressBlocks').textContent = progressStr.trim();
+        const rProgressBlocksEl = document.getElementById('rProgressBlocks');
+        if (rProgressBlocksEl) rProgressBlocksEl.textContent = progressStr.trim();
         
-        document.getElementById('rStoolType').textContent = user.stoolType || 'Type 4';
-        document.getElementById('rStoolCondition').textContent = user.condition || 'Healthy';
-        
-        document.getElementById('rRewardTitle').textContent = user.rewardTitle || 'Free Pet Photoboth Session';
-        document.getElementById('rRewardSubtitle').textContent = user.rewardSubtitle || 'Digital Version';
-        document.getElementById('rRewardChinese').textContent = user.rewardChinese || '免費寵物自拍館拍攝 (電子版)';
+        const rStoolTypeEl = document.getElementById('rStoolType');
+        if (rStoolTypeEl) rStoolTypeEl.textContent = user.stoolType || 'Type 4';
+
+        const rStoolConditionEl = document.getElementById('rStoolCondition');
+        if (rStoolConditionEl) rStoolConditionEl.textContent = user.condition || 'Healthy';
 
         // Clear and render receipt QR Code in yellow banner
         document.getElementById('receiptQr').innerHTML = '';
