@@ -220,11 +220,11 @@ async function fetchCompleteUserProfile(scannedId) {
         let petName = "Mochi"; // default fallback
         let petBreed = "Poodle";
         let petCategory = "dog";
-        let points = 120; // default points
-        let trackingDay = 1;
-        let progress = 1;
-        let stoolType = "Type 4";
-        let condition = "Healthy";
+        let points = 0; // default to 0, fetched from pcoin-balances
+        let trackingDay = null; // null = N/A on receipt
+        let progress = 0;
+        let stoolType = null; // null = N/A on receipt
+        let condition = null; // null = N/A on receipt
         let latestStoolItem = null;
         let hasData = false;
 
@@ -347,12 +347,12 @@ async function fetchCompleteUserProfile(scannedId) {
                     latestStoolItem = sortedStools[0];
                     userId = latestStoolItem.userId || userId;
                     petId = latestStoolItem.petId || petId;
-                    trackingDay = latestStoolItem.dayNumber || 1;
-                    progress = latestStoolItem.dayNumber || 1;
+                    trackingDay = latestStoolItem.dayNumber || null;
+                    progress = latestStoolItem.dayNumber || 0;
                     
                     if (latestStoolItem.analysisResult) {
-                        stoolType = latestStoolItem.analysisResult.bssLabel || `Type ${latestStoolItem.analysisResult.bssType || 4}`;
-                        condition = latestStoolItem.analysisResult.colorLabel || "Healthy";
+                        stoolType = latestStoolItem.analysisResult.bssLabel || (latestStoolItem.analysisResult.bssType ? `Type ${latestStoolItem.analysisResult.bssType}` : null);
+                        condition = latestStoolItem.analysisResult.colorLabel || null;
                     }
                     console.log(`[AWS Stool Records] Found stool entry. userId: "${userId}", petId: "${petId}", trackingDay: ${trackingDay}`);
                 } else {

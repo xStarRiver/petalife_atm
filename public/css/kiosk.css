@@ -31,11 +31,11 @@ body {
     font-family: var(--font-body);
     color: var(--pixel-charcoal);
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 16px;
     font-size: 1.5rem; /* Larger font size since VT323 is compressed */
 }
 
@@ -55,9 +55,7 @@ body::before {
 /* Primary Container Frame */
 .kiosk-pixel-container {
     width: 100%;
-    max-width: 1200px;
-    height: 90vh;
-    max-height: 800px;
+    height: calc(100vh - 32px);
     display: flex;
     flex-direction: column;
     z-index: 10;
@@ -83,20 +81,10 @@ body::before {
     gap: 12px;
 }
 
-.logo-pixel-icon {
-    font-size: 1.8rem;
-    color: var(--pixel-accent);
-}
-
-.logo-pixel-text {
-    font-family: var(--font-heading);
-    font-size: 1.15rem;
-    font-weight: 800;
-    letter-spacing: -1px;
-}
-
-.logo-pixel-text .accent-color {
-    color: var(--pixel-blue);
+.header-banner-img {
+    height: 52px;
+    width: auto;
+    image-rendering: pixelated;
 }
 
 .header-status-group {
@@ -208,10 +196,89 @@ body::before {
     align-items: center;
 }
 
+/* Idle Fullscreen Layout */
+.idle-fullscreen {
+    justify-content: center;
+    align-items: center;
+    gap: 28px;
+    background: radial-gradient(ellipse at center, rgba(0, 184, 148, 0.03) 0%, transparent 70%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Floating Decorative Paw Prints */
+.idle-floating-decor {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.float-paw {
+    position: absolute;
+    color: #FFD13A;
+    opacity: 0.15;
+    animation: floatDrift 8s infinite ease-in-out;
+}
+
+.float-paw.p1 {
+    top: 8%; left: 6%;
+    font-size: 3rem;
+    transform: rotate(-25deg);
+    animation-delay: 0s;
+    animation-duration: 7s;
+}
+
+.float-paw.p2 {
+    top: 15%; right: 8%;
+    font-size: 2rem;
+    transform: rotate(15deg);
+    animation-delay: 1.5s;
+    animation-duration: 9s;
+}
+
+.float-paw.p3 {
+    bottom: 20%; left: 10%;
+    font-size: 2.5rem;
+    transform: rotate(30deg);
+    animation-delay: 3s;
+    animation-duration: 8s;
+}
+
+.float-paw.p4 {
+    bottom: 12%; right: 12%;
+    font-size: 3.5rem;
+    transform: rotate(-10deg);
+    animation-delay: 2s;
+    animation-duration: 10s;
+}
+
+.float-paw.p5 {
+    top: 50%; left: 85%;
+    font-size: 1.8rem;
+    transform: rotate(40deg);
+    animation-delay: 4s;
+    animation-duration: 7.5s;
+}
+
+@keyframes floatDrift {
+    0%, 100% { transform: translateY(0px) rotate(var(--r, 0deg)); opacity: 0.15; }
+    25% { transform: translateY(-12px) rotate(var(--r, 0deg)); opacity: 0.22; }
+    50% { transform: translateY(-6px) rotate(var(--r, 0deg)); opacity: 0.18; }
+    75% { transform: translateY(-14px) rotate(var(--r, 0deg)); opacity: 0.12; }
+}
+
 /* Idle Screen Specific elements */
 .pixel-instruction-block {
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: 0;
+    animation: fadeSlideIn 0.8s ease-out both;
+}
+
+@keyframes fadeSlideIn {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 
 .pixel-badge {
@@ -219,25 +286,159 @@ body::before {
     background-color: var(--pixel-yellow);
     border: 3px solid var(--pixel-charcoal);
     font-family: var(--font-heading);
-    font-size: 0.7rem;
+    font-size: 0.85rem;
     font-weight: 800;
-    padding: 4px 14px;
-    margin-bottom: 12px;
+    padding: 6px 20px;
+    margin-bottom: 16px;
     box-shadow: 2px 2px 0 var(--pixel-charcoal);
+    animation: badgePulse 3s infinite ease-in-out;
+}
+
+@keyframes badgePulse {
+    0%, 100% { transform: scale(1); box-shadow: 2px 2px 0 var(--pixel-charcoal); }
+    50% { transform: scale(1.05); box-shadow: 3px 3px 0 var(--pixel-charcoal), 0 0 12px rgba(253, 203, 110, 0.4); }
 }
 
 .pixel-instruction-block h1 {
     font-family: var(--font-heading);
-    font-size: 1.8rem;
-    margin-bottom: 12px;
+    font-size: 2.4rem;
+    margin-bottom: 16px;
     letter-spacing: -1px;
+    animation: fadeSlideIn 0.8s ease-out 0.2s both;
 }
 
 .pixel-instruction-block p {
     color: var(--pixel-charcoal);
-    font-size: 1.4rem;
-    max-width: 500px;
+    font-size: 1.8rem;
+    max-width: 600px;
     margin: 0 auto;
+    animation: fadeSlideIn 0.8s ease-out 0.4s both;
+}
+
+/* Scanner Display - Animated Scanner Frame */
+.pixel-scanner-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    animation: fadeSlideIn 0.8s ease-out 0.6s both;
+}
+
+/* Decorative Coins Image - Above Welcome */
+.idle-decor-coins {
+    width: 72px;
+    height: auto;
+    image-rendering: pixelated;
+    animation: floatCoin 3.5s ease-in-out infinite;
+    filter: drop-shadow(3px 3px 0 var(--pixel-charcoal));
+    z-index: 2;
+}
+
+@keyframes floatCoin {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+
+.scanner-frame {
+    width: 220px;
+    height: 220px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: floatScanner 4s ease-in-out infinite;
+}
+
+@keyframes floatScanner {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+
+.scanner-frame-corner {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-color: #FFD13A;
+    border-style: solid;
+    transition: all 0.3s ease;
+    animation: cornerGlow 2.5s infinite alternate ease-in-out;
+}
+
+@keyframes cornerGlow {
+    0% { 
+        border-color: #FFD13A;
+        filter: drop-shadow(0 0 2px rgba(255, 209, 58, 0.3));
+    }
+    100% { 
+        border-color: #FFD13A;
+        filter: drop-shadow(0 0 8px rgba(255, 209, 58, 0.7));
+    }
+}
+
+.scanner-frame-corner.tl {
+    top: 0; left: 0;
+    border-width: 5px 0 0 5px;
+    animation-delay: 0s;
+}
+
+.scanner-frame-corner.tr {
+    top: 0; right: 0;
+    border-width: 5px 5px 0 0;
+    animation-delay: 0.3s;
+}
+
+.scanner-frame-corner.bl {
+    bottom: 0; left: 0;
+    border-width: 0 0 5px 5px;
+    animation-delay: 0.6s;
+}
+
+.scanner-frame-corner.br {
+    bottom: 0; right: 0;
+    border-width: 0 5px 5px 0;
+    animation-delay: 0.9s;
+}
+
+.scanner-center-icon {
+    font-size: 5rem;
+    color: #FFD13A;
+    opacity: 0.2;
+    animation: pulseIcon 2.5s infinite alternate ease-in-out;
+}
+
+@keyframes pulseIcon {
+    0% { opacity: 0.1; transform: scale(0.9); filter: drop-shadow(0 0 0px transparent); }
+    100% { opacity: 0.3; transform: scale(1.08); filter: drop-shadow(0 0 12px rgba(255, 209, 58, 0.4)); }
+}
+
+.scanner-laser-sweep {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--pixel-red), var(--pixel-red), transparent);
+    box-shadow: 0 0 10px var(--pixel-red), 0 0 20px rgba(214, 48, 49, 0.4), 0 0 40px rgba(214, 48, 49, 0.1);
+    animation: laserSweepVertical 2.5s infinite ease-in-out;
+    z-index: 5;
+    border-radius: 2px;
+}
+
+@keyframes laserSweepVertical {
+    0%, 100% { top: 8px; opacity: 0.9; }
+    50% { top: calc(100% - 12px); opacity: 1; }
+}
+
+/* Waiting indicator with blinking cursor effect */
+.pixel-waiting-indicator {
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    color: var(--pixel-charcoal);
+    animation: blinkText 1.5s infinite steps(2);
+}
+
+@keyframes blinkText {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
 }
 
 /* QR Code Section */
@@ -251,7 +452,7 @@ body::before {
 .pixel-qr-border {
     background: white;
     padding: 12px;
-    border: 4px solid var(--pixel-charcoal);
+    border: 4px solid #FFD13A;
     box-shadow: 6px 6px 0 var(--pixel-charcoal);
 }
 
@@ -261,41 +462,27 @@ body::before {
     height: 180px;
 }
 
-.pixel-waiting-indicator {
-    font-family: var(--font-heading);
-    font-size: 0.72rem;
-    color: var(--pixel-charcoal);
-}
+
 
 /* Scanner Zone */
 .pixel-scanner-zone {
-    margin-top: 20px;
+    margin-top: 0;
     background-color: #eae3d2;
     border: 3px dashed var(--pixel-charcoal);
-    padding: 12px 20px;
+    padding: 16px 28px;
     display: flex;
     align-items: center;
     gap: 16px;
     font-family: var(--font-heading);
-    font-size: 0.62rem;
+    font-size: 0.72rem;
     line-height: 1.4;
-    max-width: 480px;
+    max-width: 540px;
     position: relative;
     overflow: hidden;
+    animation: fadeSlideIn 0.8s ease-out 0.8s both;
 }
 
-/* Sweep laser line animation */
-.pixel-scanner-zone::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background-color: var(--pixel-red);
-    box-shadow: 0 0 6px var(--pixel-red);
-    animation: scannerLaserSweep 2s infinite steps(20) ease-in-out;
-    opacity: 0.7;
-}
+
 
 @keyframes scannerLaserSweep {
     0%, 100% { top: 0%; }
@@ -305,12 +492,29 @@ body::before {
 .scanner-icon {
     font-size: 2.2rem;
     color: var(--pixel-charcoal);
-    animation: pulseScan 1.5s infinite alternate steps(4);
+    animation: pulseScan 1.5s infinite alternate ease-in-out;
 }
 
 @keyframes pulseScan {
     0% { transform: scale(0.95); }
     100% { transform: scale(1.05); }
+}
+
+/* Hidden Webcam Scan Button */
+.hidden-webcam-btn {
+    background: none;
+    border: none;
+    color: var(--pixel-charcoal);
+    opacity: 0.15;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-left: auto;
+    transition: opacity 0.2s ease;
+}
+
+.hidden-webcam-btn:hover {
+    opacity: 0.6;
 }
 
 /* Tip link box */
@@ -350,6 +554,23 @@ body::before {
 /* Custom scroll for receipt screen content to handle long rolling paper */
 #receiptScreen {
     overflow: hidden;
+}
+
+/* When receipt screen is active — hide header, remove card background */
+#receiptScreen.active {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* Hide the top header bar when receipt screen is showing */
+.kiosk-pixel-container:has(#receiptScreen.active) .pixel-header {
+    display: none;
+}
+
+/* Make viewport fill the space when header is hidden */
+.kiosk-pixel-container:has(#receiptScreen.active) .pixel-screen-viewport {
+    height: 100%;
 }
 
 #receiptScreen .pixel-screen-content {
@@ -516,7 +737,10 @@ body::before {
     color: white !important;
 }
 
-/* Mechanical Printer Box & Print slide out */
+/* ----------------------------------------------------------------
+ * SLEEK MODERN THERMAL PRINTER VISUALIZATION
+ * Inspired by premium receipt printer hardware renders
+ * ---------------------------------------------------------------- */
 .pixel-printer-preview-container {
     display: flex;
     flex-direction: column;
@@ -526,17 +750,12 @@ body::before {
 
 .pixel-printer-device {
     position: relative;
-    width: 320px;
+    width: 420px;
     z-index: 10;
 }
 
 .printer-device-body {
-    background-color: #d1c7bd;
-    border: 4px solid var(--pixel-charcoal);
-    border-radius: 8px 8px 0 0;
-    padding: 12px 16px;
     position: relative;
-    box-shadow: 4px 0 0 var(--pixel-charcoal), -4px 0 0 var(--pixel-charcoal);
     z-index: 20;
 }
 
@@ -551,35 +770,85 @@ body::before {
     100% { transform: translate(0, 0); }
 }
 
-.printer-feed-rollers {
-    height: 8px;
-    background-color: var(--pixel-charcoal);
-    margin-bottom: 6px;
+/* Main printer body — smooth wide 3D shell */
+.printer-body-shell {
+    height: 62px;
+    background: linear-gradient(180deg, 
+        #f0f0f0 0%, 
+        #e6e6e6 15%,
+        #dedede 40%, 
+        #d2d2d2 70%,
+        #c9c9c9 100%);
+    border-radius: 12px 12px 0 0;
+    box-shadow:
+        0 -1px 4px rgba(0, 0, 0, 0.04),
+        0 8px 20px rgba(0, 0, 0, 0.15),
+        inset 0 2px 6px rgba(255, 255, 255, 0.8),
+        inset 0 -3px 8px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
 }
 
-.printer-mouth-top {
-    height: 4px;
-    background-color: #a4998e;
+/* Top highlight reflection — wide gloss strip */
+.printer-highlight-strip {
+    position: absolute;
+    top: 4px;
+    left: 30px;
+    right: 30px;
+    height: 14px;
+    background: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.15) 100%);
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
 }
 
-/* Dark slot where paper exits */
+/* Slot area — sits ABOVE the paper for proper layering */
+.printer-slot-area {
+    position: relative;
+    z-index: 30;
+    background: linear-gradient(180deg, #bcbcbc 0%, #b4b4b4 50%, #ababab 100%);
+    height: 14px;
+    border-radius: 0 0 4px 4px;
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.25),
+        inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+/* Thin silver edge above the slot */
+.printer-slot-edge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(180deg, #a0a0a0 0%, #b8b8b8 100%);
+}
+
+/* Dark paper exit slot */
 .printer-mouth-slot {
-    height: 12px;
-    background-color: var(--pixel-charcoal);
-    border: 2px solid #5a544d;
-    margin-top: 4px;
+    position: absolute;
+    top: 3px;
+    left: 12px;
+    right: 12px;
+    height: 8px;
+    background: linear-gradient(180deg, #111 0%, #222 50%, #111 100%);
+    border-radius: 1px;
+    box-shadow:
+        inset 0 2px 5px rgba(0, 0, 0, 0.9),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.5);
 }
 
-/* Paper slide expansion rolling wrapper */
+
+
+/* Paper slide expansion rolling wrapper — narrower than printer, centered */
 .receipt-paper-roll-wrapper {
     overflow: hidden;
     max-height: 0px; /* Initially hidden */
-    z-index: 5;
+    z-index: 25; /* ABOVE printer-device-body (z-index:20) so paper is on top */
     position: relative;
-    top: -4px;
-    border-left: 4px solid var(--pixel-charcoal);
-    border-right: 4px solid var(--pixel-charcoal);
-    box-shadow: 4px 4px 0 var(--pixel-charcoal);
+    top: -6px; /* Align paper start with the mouth slot */
+    width: 320px;
+    margin: 0 auto;
 }
 
 /* Active Rolling Print Animation class */
@@ -596,34 +865,49 @@ body::before {
     }
 }
 
-/* The Retro Paper Receipt Card */
+/* The Paper Receipt Card — uses actual paper.png as background */
 .pixel-paper-receipt {
     width: 100%;
     height: 894px; /* Exact 223.40mm x 80mm scale */
     box-sizing: border-box;
-    background-color: #f4c965; /* Beautiful retro gold background */
-    border: 4px solid var(--pixel-charcoal);
-    padding: 10px 10px 4px 10px; /* leaves gold border around the white card */
+    background-image: url('../images/paper.png');
+    background-size: 100% 894px;
+    background-repeat: no-repeat;
+    background-position: top center;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     position: relative;
     color: var(--pixel-charcoal);
+    image-rendering: auto; /* Override global pixelated for smooth bg image */
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.12);
 }
 
-.pixel-receipt-body {
-    flex-grow: 1;
-    background-color: #ffffff;
-    border: 3px solid var(--pixel-charcoal);
-    border-radius: 4px;
-    padding: 12px 10px 4px 10px;
+/* Content area precisely positioned over the paper's white zone */
+.paper-content-area {
+    position: absolute;
+    top: 100px;
+    left: 30px;
+    right: 30px;
+    bottom: 140px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    outline: 3px dashed #f4c965; /* Dashed gold outline inside the white card */
-    outline-offset: -8px;
-    box-sizing: border-box;
-    height: calc(100% - 6px);
+    gap: 12px;
+    padding: 4px 2px;
+    font-family: 'Helvetica Neue', Arial, 'Noto Sans TC', sans-serif;
+    font-size: 12.5px;
+    color: #1a1a1a;
+    line-height: 1.35;
+}
+
+/* Each receipt section gets equal breathing room */
+.receipt-pixel-section {
+    flex-shrink: 0;
+}
+
+/* Keep old receipt-body styles for backwards compat but hide */
+.pixel-receipt-body {
+    display: none;
 }
 
 .receipt-pixel-header {
@@ -647,7 +931,7 @@ body::before {
 }
 
 .pixel-divider-dotted {
-    border-bottom: 4px dotted var(--pixel-charcoal);
+    border-bottom: 1px dotted #999;
     margin: 8px 0;
 }
 
@@ -656,10 +940,17 @@ body::before {
 }
 
 .receipt-sub-title {
-    font-family: var(--font-heading);
-    font-size: 0.65rem;
-    color: var(--pixel-blue);
-    margin-bottom: 6px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+    letter-spacing: 0.3px;
+}
+
+.receipt-sub-text {
+    font-size: 11px;
+    color: #333;
 }
 
 .pet-item {
@@ -713,19 +1004,20 @@ body::before {
     height: 76px !important;
 }
 
-/* Beautiful Jagged Pixelated Cut bottom edge (Gold jagged tear) */
+/* Scalloped tear edge at paper bottom for realistic receipt look */
 .pixel-receipt-cut-edge {
-    height: 8px;
-    background-image: 
-        linear-gradient(135deg, transparent 40%, #f4c965 40%, #f4c965 60%, transparent 60%),
-        linear-gradient(45deg, transparent 40%, #f4c965 40%, #f4c965 60%, transparent 60%);
-    background-size: 8px 8px;
-    background-repeat: repeat-x;
-    position: relative;
-    width: calc(100% + 20px); /* extends over gold margins */
-    left: -10px;
-    bottom: -4px;
+    height: 12px;
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    right: 0;
     z-index: 10;
+    background: 
+        radial-gradient(circle at 6px 0, transparent 5px, #fff 5.5px);
+    background-size: 12px 12px;
+    background-position: 0 0;
+    background-repeat: repeat-x;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.08));
 }
 
 /* Retro Pixel Modal Overlay */
@@ -1004,10 +1296,14 @@ select.pixel-select {
 }
 
 .receipt-deposit-title {
-    font-family: var(--font-heading);
-    font-size: 0.6rem;
-    margin-top: 6px;
-    color: var(--pixel-charcoal);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #1a1a1a;
+    text-align: center;
+    letter-spacing: 1px;
 }
 
 .receipt-pixel-meta-split {
@@ -1017,8 +1313,9 @@ select.pixel-select {
 }
 
 .meta-left {
-    line-height: 1.35;
-    font-weight: bold;
+    line-height: 1.4;
+    font-weight: 600;
+    font-size: 12.5px;
 }
 
 .meta-right {
@@ -1028,12 +1325,13 @@ select.pixel-select {
 }
 
 .pixel-poodle-box {
-    border: 3px solid var(--pixel-charcoal);
-    padding: 2px;
+    border: 2px solid #1a1a1a;
+    padding: 1px;
     background: white;
-    width: 60px;
-    height: 60px;
-    box-shadow: 2px 2px 0 var(--pixel-charcoal);
+    width: 40px;
+    height: 40px;
+    box-shadow: 1px 1px 0 #1a1a1a;
+    flex-shrink: 0;
 }
 
 .pixel-poodle-box img {
@@ -1046,45 +1344,47 @@ select.pixel-select {
 .points-badge-row {
     display: flex;
     align-items: baseline;
-    gap: 4px;
-    margin: 8px 0;
+    gap: 3px;
+    margin: 2px 0;
 }
 
 .giant-points {
-    font-size: 3.5rem;
-    font-weight: bold;
-    line-height: 0.9;
-    font-family: var(--font-body);
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: #1a1a1a;
 }
 
 .points-label {
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a1a;
 }
 
 .points-pixel-icons {
     margin-left: auto;
     display: flex;
-    gap: 12px;
-    font-size: 2.2rem;
+    gap: 5px;
+    font-size: 1.2rem;
     align-items: center;
 }
 
 .paw-coin {
-    color: var(--pixel-accent);
+    color: #1a1a1a;
 }
 
 .points-today-txt {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #4b5563;
-    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-top: 0;
 }
 
 .progress-blocks-row {
-    margin-top: 4px;
+    margin-top: 2px;
     font-weight: bold;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 /* Reward Photo Frame */
@@ -1373,10 +1673,12 @@ select.pixel-select {
 }
 
 /* -------------------------------------------------------------
- * PRINT MEDIA STYLES - Browser Standard Print Mode
+ * PRINT MEDIA STYLES - Matches on-screen visualization exactly
+ * Paper: 80mm × 223.40mm (thermal receipt)
+ * Scale: 320px screen = 80mm print → 1px = 0.25mm
  * ------------------------------------------------------------- */
 @media print {
-    /* Hide all browser headers, footers, margins */
+    /* Paper size with zero margins — full bleed */
     @page {
         size: 80mm 223.40mm;
         margin: 0;
@@ -1388,10 +1690,11 @@ select.pixel-select {
         background: #ffffff !important;
         margin: 0 !important;
         padding: 0 !important;
-        overflow: visible !important;
+        overflow: hidden !important;
+        font-size: 10pt !important;
     }
 
-    /* Hide absolutely everything except the receipt itself */
+    /* Hide everything that's not the receipt */
     .kiosk-pixel-container > header,
     .pixel-header,
     .pixel-actions-row,
@@ -1405,11 +1708,15 @@ select.pixel-select {
     .pixel-tip-box,
     #idleScreen,
     .pixel-printer-device,
-    .printer-mouth-slot {
+    .printer-device-body,
+    .printer-mouth-slot,
+    .pixel-receipt-cut-edge,
+    body::before {
         display: none !important;
     }
 
-    /* Reset layouts for the viewport and parent elements to prevent screens from clipping */
+    /* Reset container hierarchy to flat, borderless, 80mm wide */
+    .kiosk-pixel-container,
     .pixel-screen-viewport,
     .pixel-screen-card,
     .receipt-centered-layout,
@@ -1419,67 +1726,114 @@ select.pixel-select {
         background: none !important;
         border: none !important;
         box-shadow: none !important;
+        filter: none !important;
         padding: 0 !important;
         margin: 0 !important;
         width: 80mm !important;
-        height: 223.40mm !important;
+        height: auto !important;
+        max-height: none !important;
         position: static !important;
         overflow: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        animation: none !important;
     }
 
-    /* Force the receipt card to be full size 80mm x 223.40mm */
+    /* The receipt paper — no bg image since physical paper is pre-printed */
     .pixel-paper-receipt {
-        display: flex !important;
+        display: block !important;
         width: 80mm !important;
         height: 223.40mm !important;
         box-sizing: border-box !important;
-        padding: 10px 10px 4px 10px !important;
-        border: 4px solid #252422 !important;
-        background-color: #f4c965 !important;
-        /* Force color backgrounds to print in Chrome/Edge/Firefox */
+        background-image: none !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        position: relative !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        margin: 0 !important;
     }
 
-    .pixel-receipt-body {
+    /* Content area — mm equivalents of screen layout:
+       Screen: top:100px left:30px right:30px bottom:140px on 320×894
+       Print:  top:25mm  left:7.5mm right:7.5mm bottom:35mm on 80×223.40mm */
+    .paper-content-area {
+        position: absolute !important;
+        top: 25mm !important;
+        left: 7.5mm !important;
+        right: 7.5mm !important;
+        bottom: 35mm !important;
+        padding: 1mm !important;
+        overflow: hidden !important;
         display: flex !important;
         flex-direction: column !important;
-        justify-content: space-between !important;
-        background-color: white !important;
-        border: 3px solid #252422 !important;
-        outline: 3px dashed #f4c965 !important;
-        outline-offset: -8px !important;
-        box-sizing: border-box !important;
-        height: calc(100% - 6px) !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+        gap: 3mm !important;
+        font-family: 'Helvetica Neue', Arial, 'Noto Sans TC', sans-serif !important;
+        font-size: 8pt !important;
+        color: #1a1a1a !important;
+        line-height: 1.35 !important;
     }
 
-    .receipt-poop-bank-title {
-        background-color: #f4c965 !important;
-        border: 3px solid #252422 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+    /* Receipt title */
+    .receipt-deposit-title {
+        font-family: 'Helvetica Neue', Arial, sans-serif !important;
+        font-size: 8pt !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        letter-spacing: 0.5mm !important;
     }
 
-    .receipt-pixel-footer-banner {
-        background-color: #f4c965 !important;
-        border: 4px solid #252422 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+    /* Section titles */
+    .receipt-sub-title {
+        font-family: 'Helvetica Neue', Arial, sans-serif !important;
+        font-size: 7.5pt !important;
+        font-weight: 700 !important;
     }
 
-    .pixel-poodle-box {
-        border: 3px solid #252422 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+    /* Dotted dividers */
+    .pixel-divider-dotted {
+        border-bottom: 0.3mm dotted #999 !important;
+        margin: 1mm 0 !important;
     }
 
-    .pixel-receipt-cut-edge {
-        display: block !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+    /* User meta info */
+    .meta-left {
+        font-size: 8pt !important;
+        line-height: 1.4 !important;
+        font-weight: 600 !important;
+    }
+
+    /* Points display */
+    .giant-points {
+        font-size: 18pt !important;
+        font-weight: 800 !important;
+        font-family: 'Helvetica Neue', Arial, sans-serif !important;
+    }
+
+    .points-label {
+        font-size: 9pt !important;
+        font-weight: 700 !important;
+    }
+
+    .points-badge-row {
+        gap: 1mm !important;
+        margin: 0.5mm 0 !important;
+    }
+
+    .points-today-txt {
+        font-size: 7pt !important;
+    }
+
+    .progress-blocks-row {
+        font-size: 8pt !important;
+    }
+
+    .receipt-sub-text {
+        font-size: 7pt !important;
+    }
+
+    .receipt-pixel-section {
+        flex-shrink: 0 !important;
     }
 }
 

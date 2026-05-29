@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 text: hostUrl,
                 width: 180,
                 height: 180,
-                colorDark: '#252422', // Match retro charcoal
+                colorDark: '#FFD13A', // Golden yellow brand color
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.M
             });
@@ -257,13 +257,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rPetAvatarEl) rPetAvatarEl.src = user.petAvatar || 'images/pixel_poodle.png';
         
         const rPointsEl = document.getElementById('rPoints');
-        if (rPointsEl) rPointsEl.textContent = user.points || 0;
+        if (rPointsEl) rPointsEl.textContent = user.points !== undefined ? user.points : 0;
 
         const rPointsTodayEl = document.getElementById('rPointsToday');
-        if (rPointsTodayEl) rPointsTodayEl.textContent = user.pointsDeposited || 0;
+        if (rPointsTodayEl) rPointsTodayEl.textContent = user.pointsDeposited !== undefined ? user.pointsDeposited : 0;
 
         const rTrackingDayEl = document.getElementById('rTrackingDay');
-        if (rTrackingDayEl) rTrackingDayEl.textContent = `Day ${user.trackingDay || 1}`;
+        if (rTrackingDayEl) rTrackingDayEl.textContent = user.trackingDay ? `Day ${user.trackingDay}` : 'N/A';
         
         // Render 8-day progress blocks (e.g. ■ ■ ■ ■ ■ □ □ □)
         const progressCount = user.progress || 0;
@@ -275,21 +275,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rProgressBlocksEl) rProgressBlocksEl.textContent = progressStr.trim();
         
         const rStoolTypeEl = document.getElementById('rStoolType');
-        if (rStoolTypeEl) rStoolTypeEl.textContent = user.stoolType || 'Type 4';
+        if (rStoolTypeEl) rStoolTypeEl.textContent = user.stoolType || 'N/A';
 
         const rStoolConditionEl = document.getElementById('rStoolCondition');
-        if (rStoolConditionEl) rStoolConditionEl.textContent = user.condition || 'Healthy';
+        if (rStoolConditionEl) rStoolConditionEl.textContent = user.condition || 'N/A';
 
-        // Clear and render receipt QR Code in yellow banner
-        document.getElementById('receiptQr').innerHTML = '';
-        new QRCode(document.getElementById('receiptQr'), {
-            text: `https://petalife.com/member/${user.id}`,
-            width: 54,
-            height: 54,
-            colorDark: '#252422',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.M
-        });
+        // Clear and render receipt QR Code if element exists (removed when using paper.png background)
+        const receiptQrEl = document.getElementById('receiptQr');
+        if (receiptQrEl) {
+            receiptQrEl.innerHTML = '';
+            new QRCode(receiptQrEl, {
+                text: `https://petalife.com/member/${user.id}`,
+                width: 54,
+                height: 54,
+                colorDark: '#FFD13A',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
 
         // Transition card
         idleScreen.classList.remove('active');
@@ -303,20 +306,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const printerMouthParent = document.getElementById('printerMouth').parentElement;
         printerMouthParent.classList.add('jittering');
 
-        // Play continuous printer buzzing tone
-        let buzzInterval = setInterval(() => {
-            playBeep(180, 0.08); // Low square wave buzz sound!
-        }, 100);
-
         // Force browser reflow to restart css rolling slide-down animation
         void receiptWrapper.offsetWidth;
         receiptWrapper.classList.add('rolling-active');
 
-        // End printer mechanical vibration and buzz sound after 2.5 seconds
+        // End printer mechanical vibration after 2.5 seconds
         setTimeout(() => {
-            clearInterval(buzzInterval);
             printerMouthParent.classList.remove('jittering');
-            playBeep(1000, 0.05); // High cut chime
         }, 2500);
     }
 
@@ -664,7 +660,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --------------------------------------------------
     printReceiptBtn.addEventListener('click', async () => {
         if (!currentUser) return;
-        playBeep(700, 0.08);
 
         // Direct silent print mode
         if (activePrinterSettings && activePrinterSettings.startsWith('DIRECT_PRINT:')) {
@@ -679,16 +674,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 const data = await res.json();
                 if (data.success) {
-                    playBeep(1000, 0.1);
-                    setTimeout(() => playBeep(1200, 0.1), 100);
                     showToast('RECEIPT PRINTED!', 'success');
                 } else {
-                    playBeep(300, 0.35);
+
                     showToast(data.message || 'PRINT FAILED', 'error');
                 }
             } catch (err) {
                 console.error('Silent print failed:', err);
-                playBeep(300, 0.35);
+
                 showToast('PRINT SERVICE ERROR', 'error');
             } finally {
                 printReceiptBtn.disabled = false;
@@ -699,8 +692,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (activePrinterSettings === 'BROWSER_PRINT') {
             showToast('OPENING SYSTEM PRINT DIALOG...', 'success');
-            playBeep(1000, 0.1);
-            setTimeout(() => playBeep(1300, 0.15), 100);
             window.print();
             return;
         }
@@ -708,18 +699,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show mechanical printing strip overlay
         printOverlay.classList.add('active');
 
-        // Synthesizer printer motor pitch shifts!
         let duration = 2400;
-        let elapsed = 0;
-        let synthBuzz = setInterval(() => {
-            // Random mechanical variation in pitch for amazing 8-bit buzz
-            let freq = 180 + Math.sin(elapsed / 100) * 15;
-            playBeep(freq, 0.06);
-            elapsed += 100;
-        }, 100);
 
         setTimeout(async () => {
-            clearInterval(synthBuzz);
             try {
                 const res = await fetch(getApiRoot('/api/printer/print'), {
                     method: 'POST',
@@ -729,11 +711,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await res.json();
 
                 if (data.success) {
-                    playBeep(1000, 0.1);
-                    setTimeout(() => playBeep(1300, 0.15), 100);
                     showToast('TICKET PRINT COMPLETE!', 'success');
                 } else {
-                    playBeep(300, 0.4);
+
                     showToast('HARDWARE ERROR', 'error');
                 }
             } catch (err) {

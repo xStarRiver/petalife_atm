@@ -1,5 +1,11 @@
 node_modules
 .vercel
 .env
+.env.local
+.env.production
+.env*.local
 tmp/
-test_printers.mjs
+test_printers.mjs
+test_dll.js
+list_tables.js
+*.log

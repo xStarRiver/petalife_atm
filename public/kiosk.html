@@ -16,8 +16,7 @@
         <!-- Top Navigation / Header -->
         <header class="pixel-header">
             <div class="header-logo">
-                <i class="fa-solid fa-paw logo-pixel-icon"></i>
-                <span class="logo-pixel-text">PetaLife <span class="accent-color">ATM</span></span>
+                <img src="images/banner.png" alt="PetaLife ATM" class="header-banner-img">
             </div>
             <div class="header-status-group">
                 <div class="pixel-status-pill" id="quickStatusPill">
@@ -35,27 +34,44 @@
         <main class="pixel-screen-viewport">
             <!-- IDLE SCREEN (Shows QR Code & Instructions) -->
             <div class="pixel-screen-card active" id="idleScreen">
-                <div class="pixel-screen-content">
-                    <div class="pixel-instruction-block">
-                        <div class="pixel-badge">STEP 01</div>
-                        <h1>SCAN QR CODE</h1>
-                        <p>Link your mobile phone profile to load your PetaLife records.</p>
+                <div class="pixel-screen-content idle-fullscreen">
+                    <!-- Floating decorative paw prints -->
+                    <div class="idle-floating-decor">
+                        <i class="fa-solid fa-paw float-paw p1"></i>
+                        <i class="fa-solid fa-paw float-paw p2"></i>
+                        <i class="fa-solid fa-paw float-paw p3"></i>
+                        <i class="fa-solid fa-paw float-paw p4"></i>
+                        <i class="fa-solid fa-paw float-paw p5"></i>
                     </div>
 
-                    <div class="pixel-qr-section">
-                        <div class="pixel-qr-border">
-                            <div id="qrcode"></div>
+                    <img src="images/coins.png" alt="PetaLife Coins" class="idle-decor-coins">
+
+                    <div class="pixel-instruction-block">
+                        <div class="pixel-badge">WELCOME</div>
+                        <h1>SCAN MEMBER PASS</h1>
+                        <p>Hold your PetaLife member QR code in front of the scanner to begin.</p>
+                    </div>
+
+                    <div class="pixel-scanner-display">
+                        <div class="scanner-frame">
+                            <div class="scanner-frame-corner tl"></div>
+                            <div class="scanner-frame-corner tr"></div>
+                            <div class="scanner-frame-corner bl"></div>
+                            <div class="scanner-frame-corner br"></div>
+                            <div class="scanner-laser-sweep"></div>
+                            <i class="fa-solid fa-qrcode scanner-center-icon"></i>
                         </div>
-                        <div class="pixel-waiting-indicator">
-                            <i class="fa-solid fa-spinner fa-spin-pulse"></i> WAITING FOR SCAN...
-                        </div>
+                    </div>
+
+                    <div class="pixel-waiting-indicator">
+                        <i class="fa-solid fa-spinner fa-spin-pulse"></i> WAITING FOR SCAN...
                     </div>
 
                     <div class="pixel-scanner-zone">
                         <i class="fa-solid fa-barcode scanner-icon"></i>
-                        <span class="scanner-text">OR HOLD MEMBER QR PASS IN FRONT OF TERMINAL SCANNER</span>
-                        <button type="button" class="pixel-btn btn-webcam-trigger" id="startWebcamBtn">
-                            <i class="fa-solid fa-camera"></i> USE WEBCAM SCAN
+                        <span class="scanner-text">PLACE YOUR MEMBER QR PASS ON THE SCANNER BELOW</span>
+                        <button type="button" class="hidden-webcam-btn" id="startWebcamBtn" title="Webcam Scan">
+                            <i class="fa-solid fa-camera"></i>
                         </button>
                     </div>
 
@@ -67,20 +83,17 @@
                         </div>
                         <div class="webcam-viewport">
                             <div id="webcamPreview"></div>
-                            <!-- Sweeping red laser line overlay on top of video -->
                             <div class="webcam-laser-line"></div>
-                            <!-- Crosshair bounds -->
                             <div class="webcam-crosshairs"></div>
                         </div>
                         <div class="webcam-instructions">
-                            Hold your mobile app's QR code up to your MacBook camera.
+                            Hold your mobile app's QR code up to the camera.
                         </div>
                     </div>
 
-                    <div class="pixel-tip-box">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <span>Local test? <a id="mobileSimLink" target="_blank" href="#">Open Simulator</a> to link profile.</span>
-                    </div>
+                    <!-- Hidden elements kept for JS compatibility -->
+                    <div id="qrcode" style="display:none;"></div>
+                    <a id="mobileSimLink" target="_blank" href="#" style="display:none;"></a>
                 </div>
             </div>
 
@@ -89,25 +102,25 @@
                 <div class="pixel-screen-content receipt-centered-layout">
                     <!-- Mechanical Printer & Stepped Rolling Receipt -->
                     <div class="pixel-printer-preview-container">
-                        <!-- Retro Printer Device Box -->
+                        <!-- Sleek Modern Thermal Printer -->
                         <div class="pixel-printer-device">
                             <div class="printer-device-body">
-                                <div class="printer-feed-rollers"></div>
-                                <div class="printer-mouth-top"></div>
-                                <!-- Mechanical slot mouth from where paper slides out -->
-                                <div class="printer-mouth-slot" id="printerMouth"></div>
+                                <div class="printer-body-shell">
+                                    <div class="printer-highlight-strip"></div>
+                                </div>
+                                <div class="printer-slot-area">
+                                    <div class="printer-slot-edge"></div>
+                                    <div class="printer-mouth-slot" id="printerMouth"></div>
+                                </div>
                             </div>
 
                             <!-- Rolling down Paper Receipt Container -->
                             <div class="receipt-paper-roll-wrapper">
                                 <div class="pixel-paper-receipt" id="paperReceipt">
-                                    <div class="pixel-receipt-body">
-                                        <div class="receipt-pixel-header">
-                                            <div class="receipt-star-header">✨ <i class="fa-solid fa-paw"></i> Petalife <i class="fa-solid fa-paw"></i> ✨</div>
-                                            <div class="receipt-poop-bank-title">便便銀行 | POOP BANK</div>
-                                            <div class="receipt-deposit-title">🐾 DEPOSIT RECEIPT 🐾</div>
-                                            <div class="pixel-divider-dotted"></div>
-                                        </div>
+                                    <!-- paper.png is the background — content overlaid on white zone -->
+                                    <div class="paper-content-area">
+                                        <div class="receipt-deposit-title">🐾 DEPOSIT RECEIPT 🐾</div>
+                                        <div class="pixel-divider-dotted"></div>
 
                                         <div class="receipt-pixel-meta-split">
                                             <div class="meta-left">
@@ -118,11 +131,6 @@
                                                 <p>Breed    : <span id="rPetBreed">--</span></p>
                                                 <p>Date     : <span id="rDate">--</span></p>
                                             </div>
-                                            <div class="meta-right">
-                                                <div class="pixel-poodle-box">
-                                                    <img src="images/pixel_poodle.png" alt="Poodle" id="rPetAvatar">
-                                                </div>
-                                            </div>
                                         </div>
                                         <div class="pixel-divider-dotted"></div>
 
@@ -132,10 +140,6 @@
                                             <div class="points-badge-row">
                                                 <span class="giant-points" id="rPoints">0</span>
                                                 <span class="points-label">P-Coins</span>
-                                                <div class="points-pixel-icons">
-                                                    <span class="poop-coin">💩</span>
-                                                    <span class="paw-coin"><i class="fa-solid fa-circle-nodes"></i></span>
-                                                </div>
                                             </div>
                                             <p class="points-today-txt">+<span id="rPointsToday">0</span> P-Coins deposited today</p>
                                             <div class="pixel-divider-dotted"></div>
@@ -152,24 +156,20 @@
                                             <div class="pixel-divider-dotted"></div>
                                         </div>
 
-                                        <!-- Footer Download Banner -->
-                                        <div class="receipt-pixel-footer-banner">
-                                            <div class="footer-banner-left">
-                                                <div class="footer-banner-logo-box">
-                                                    <i class="fa-solid fa-paw"></i>
-                                                </div>
-                                            </div>
-                                            <div class="footer-banner-mid">
-                                                <p class="banner-zh">開始存入你寵物第一筆健康資產 🐾</p>
-                                                <p class="banner-en">Start Your Pet's First Health Deposit</p>
-                                                <div class="banner-store-badges">
-                                                    <span class="store-badge"><i class="fa-brands fa-apple"></i> iOS</span>
-                                                    <span class="store-badge"><i class="fa-brands fa-google-play"></i> Android</span>
-                                                </div>
-                                            </div>
-                                            <div class="footer-banner-right">
-                                                <div id="receiptQr"></div>
-                                            </div>
+                                        <!-- REWARD CREDITED -->
+                                        <div class="receipt-pixel-section">
+                                            <h4 class="receipt-sub-title">🎁 已解鎖獎勵 REWARD CREDITED</h4>
+                                            <p>🎁 免費寵物自拍館拍攝體驗（電子版）</p>
+                                            <p class="receipt-sub-text">(Free Pet Photobooth Session - Digital Version)</p>
+                                            <div class="pixel-divider-dotted"></div>
+                                        </div>
+
+                                        <!-- NEXT STEP -->
+                                        <div class="receipt-pixel-section">
+                                            <h4 class="receipt-sub-title">💡 下一步任務 NEXT STEP</h4>
+                                            <p class="receipt-sub-text">持續每日掃描便便，解鎖更多豐富獎賞：</p>
+                                            <p>→ 累積滿 600 P-coins 即可贏取 Dyson 寵物家電！</p>
+                                            <p>→ 連續打卡14日解鎖 Purina 專業寵物糧！</p>
                                         </div>
                                     </div>
                                     <div class="pixel-receipt-cut-edge"></div>
