@@ -406,7 +406,8 @@ function printSelfTest() {
 // Generate a receipt PDF in memory and return the file path
 function generateReceiptPDF(user) {
     return new Promise((resolve, reject) => {
-        const tmpDir = path.join(__dirname, 'tmp');
+        const os = require('os');
+        const tmpDir = path.join(os.tmpdir(), 'petalife-receipts');
         if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
         const filePath = path.join(tmpDir, `receipt_${Date.now()}.pdf`);
 

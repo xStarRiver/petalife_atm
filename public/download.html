@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetaLife ATM - Download Kiosk App</title>
+    <meta name="description" content="Download the PetaLife ATM Kiosk application for Windows">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #1a1a2e;
+            color: #eaeaea;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .download-card {
+            background: linear-gradient(145deg, #16213e, #1a1a2e);
+            border: 1px solid rgba(255, 209, 58, 0.2);
+            border-radius: 24px;
+            padding: 60px 50px;
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(255, 209, 58, 0.05);
+        }
+
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #FFD13A, #F5A623);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 36px;
+        }
+
+        .app-icon i {
+            color: #1a1a2e;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 32px;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: rgba(255, 209, 58, 0.1);
+            border: 1px solid rgba(255, 209, 58, 0.3);
+            color: #FFD13A;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 32px;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #FFD13A, #F5A623);
+            color: #1a1a2e;
+            text-decoration: none;
+            padding: 16px 36px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(255, 209, 58, 0.3);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 209, 58, 0.4);
+        }
+
+        .download-btn i {
+            font-size: 20px;
+        }
+
+        .file-info {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .requirements {
+            margin-top: 40px;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 20px 24px;
+        }
+
+        .requirements h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #aaa;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .requirements ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .requirements li {
+            font-size: 13px;
+            color: #888;
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .requirements li i {
+            color: #FFD13A;
+            font-size: 10px;
+        }
+
+        .changelog-link {
+            display: inline-block;
+            margin-top: 24px;
+            color: #FFD13A;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .changelog-link:hover {
+            opacity: 1;
+        }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .footer a {
+            color: #FFD13A;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="download-card">
+        <div class="app-icon">
+            <i class="fa-solid fa-paw"></i>
+        </div>
+        <h1>PetaLife ATM</h1>
+        <p class="subtitle">Kiosk Application for Windows</p>
+        
+        <div class="version-badge">
+            <i class="fa-solid fa-tag"></i> v1.0.0 — Latest
+        </div>
+
+        <div>
+            <a href="https://github.com/xStarRiver/petalife_atm/releases/latest/download/PetaLife.ATM.Setup.1.0.0.exe" 
+               class="download-btn" id="downloadBtn">
+                <i class="fa-solid fa-download"></i>
+                Download for Windows
+            </a>
+        </div>
+        <p class="file-info">
+            <i class="fa-brands fa-windows"></i> Windows 10/11 · x64 · ~130 MB
+        </p>
+
+        <div class="requirements">
+            <h3><i class="fa-solid fa-circle-info"></i> System Requirements</h3>
+            <ul>
+                <li><i class="fa-solid fa-check"></i> Windows 10 or later (64-bit)</li>
+                <li><i class="fa-solid fa-check"></i> 4 GB RAM minimum</li>
+                <li><i class="fa-solid fa-check"></i> Internet connection for DynamoDB</li>
+                <li><i class="fa-solid fa-check"></i> USB thermal printer (optional)</li>
+            </ul>
+        </div>
+
+        <a href="https://github.com/xStarRiver/petalife_atm/releases" class="changelog-link">
+            <i class="fa-solid fa-clock-rotate-left"></i> View all releases & changelog
+        </a>
+    </div>
+
+    <p class="footer">
+        Built by <a href="https://github.com/xStarRiver">xStarRiver</a> · 
+        <a href="https://github.com/xStarRiver/petalife_atm">Source Code</a>
+    </p>
+</body>
+</html>

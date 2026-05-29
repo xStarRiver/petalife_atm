@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 text: hostUrl,
                 width: 180,
                 height: 180,
-                colorDark: '#FFD13A', // Golden yellow brand color
+                colorDark: '#252422', // Match card border for visibility
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.M
             });
@@ -675,8 +675,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await res.json();
                 if (data.success) {
                     showToast('RECEIPT PRINTED!', 'success');
+                    // Auto return to home after 3 seconds
+                    setTimeout(() => { initializeSession(); }, 3000);
                 } else {
-
                     showToast(data.message || 'PRINT FAILED', 'error');
                 }
             } catch (err) {
@@ -693,6 +694,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (activePrinterSettings === 'BROWSER_PRINT') {
             showToast('OPENING SYSTEM PRINT DIALOG...', 'success');
             window.print();
+            // Auto return to home after 5 seconds
+            setTimeout(() => { initializeSession(); }, 5000);
             return;
         }
 
@@ -712,8 +715,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showToast('TICKET PRINT COMPLETE!', 'success');
+                    // Auto return to home after 3 seconds
+                    setTimeout(() => { initializeSession(); }, 3000);
                 } else {
-
                     showToast('HARDWARE ERROR', 'error');
                 }
             } catch (err) {

@@ -5,6 +5,7 @@ node_modules
 .env.production
 .env*.local
 tmp/
+dist/
 test_printers.mjs
 test_dll.js
 list_tables.js

@@ -2,17 +2,22 @@
   "name": "petalife-atm",
   "version": "1.0.0",
   "description": "PetaLife ATM Kiosk and Receipt Printer",
-  "main": "server.js",
+  "main": "electron-main.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "electron": "electron .",
+    "electron:dev": "set NODE_ENV=development&& electron .",
+    "electron:build": "electron-builder build --win",
+    "postinstall": "electron-builder install-app-deps"
   },
   "keywords": [
     "kiosk",
     "atm",
     "printer",
     "escpos",
-    "sdk"
+    "sdk",
+    "electron"
   ],
   "author": "Antigravity",
   "license": "ISC",
@@ -24,7 +29,54 @@
     "koffi": "^2.8.12",
     "pdf-to-printer": "^5.8.0",
     "pdfkit": "^0.18.0",
-    "vercel": "^54.4.1",
     "ws": "^8.17.0"
+  },
+  "devDependencies": {
+    "electron": "^42.3.0",
+    "electron-builder": "^26.8.1"
+  },
+  "build": {
+    "appId": "com.petalife.atm",
+    "productName": "PetaLife ATM",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron-main.js",
+      "server.js",
+      "printer_helper.js",
+      "public/**/*",
+      "node_modules/**/*",
+      "package.json",
+      ".env.local"
+    ],
+    "extraResources": [
+      {
+        "from": "sdk/",
+        "to": "sdk/",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/images/coins.png",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "PetaLife ATM"
+    }
   }
 }
