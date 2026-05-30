@@ -57,6 +57,13 @@
         "filter": [
           "**/*"
         ]
+      },
+      {
+        "from": "fonts/",
+        "to": "fonts/",
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "win": {

@@ -661,8 +661,26 @@ document.addEventListener('DOMContentLoaded', () => {
     printReceiptBtn.addEventListener('click', async () => {
         if (!currentUser) return;
 
+        // Check if any printer is configured
+        if (!activePrinterSettings) {
+            showToast('NO PRINTER CONNECTED. GO TO SETTINGS TO CONNECT.', 'error');
+            return;
+        }
+
         // Direct silent print mode
         if (activePrinterSettings && activePrinterSettings.startsWith('DIRECT_PRINT:')) {
+            // Check printer availability first
+            try {
+                const checkRes = await fetch(getApiRoot('/api/printer/check-available'));
+                const checkData = await checkRes.json();
+                if (!checkData.available) {
+                    showToast(checkData.reason || 'PRINTER NOT AVAILABLE', 'error');
+                    return;
+                }
+            } catch (e) {
+                showToast('CANNOT CHECK PRINTER STATUS', 'error');
+                return;
+            }
             printReceiptBtn.disabled = true;
             printReceiptBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> PRINTING...';
             showToast('SENDING TO PRINTER...', 'success');

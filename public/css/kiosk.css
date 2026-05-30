@@ -895,7 +895,7 @@ body::before {
     flex-direction: column;
     gap: 12px;
     padding: 4px 2px;
-    font-family: 'Helvetica Neue', Arial, 'Noto Sans TC', sans-serif;
+    font-family: 'Noto Sans TC', 'Helvetica Neue', Arial, sans-serif;
     font-size: 12.5px;
     color: #1a1a1a;
     line-height: 1.35;
@@ -941,7 +941,7 @@ body::before {
 }
 
 .receipt-sub-title {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Noto Sans TC', 'Helvetica Neue', Arial, sans-serif;
     font-size: 11px;
     font-weight: 700;
     color: #1a1a1a;
@@ -1297,7 +1297,7 @@ select.pixel-select {
 }
 
 .receipt-deposit-title {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Noto Sans TC', 'Helvetica Neue', Arial, sans-serif;
     font-size: 12px;
     font-weight: 700;
     margin-top: 0;
@@ -1353,7 +1353,7 @@ select.pixel-select {
     font-size: 28px;
     font-weight: 800;
     line-height: 1;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Noto Sans TC', 'Helvetica Neue', Arial, sans-serif;
     color: #1a1a1a;
 }
 
@@ -1769,7 +1769,7 @@ select.pixel-select {
         display: flex !important;
         flex-direction: column !important;
         gap: 3mm !important;
-        font-family: 'Helvetica Neue', Arial, 'Noto Sans TC', sans-serif !important;
+        font-family: 'Noto Sans TC', 'Helvetica Neue', Arial, sans-serif !important;
         font-size: 8pt !important;
         color: #1a1a1a !important;
         line-height: 1.35 !important;
@@ -1777,7 +1777,7 @@ select.pixel-select {
 
     /* Receipt title */
     .receipt-deposit-title {
-        font-family: 'Helvetica Neue', Arial, sans-serif !important;
+        font-family: 'Noto Sans TC', 'Helvetica Neue', Arial, sans-serif !important;
         font-size: 8pt !important;
         font-weight: 700 !important;
         text-align: center !important;
@@ -1786,7 +1786,7 @@ select.pixel-select {
 
     /* Section titles */
     .receipt-sub-title {
-        font-family: 'Helvetica Neue', Arial, sans-serif !important;
+        font-family: 'Noto Sans TC', 'Helvetica Neue', Arial, sans-serif !important;
         font-size: 7.5pt !important;
         font-weight: 700 !important;
     }
@@ -1808,7 +1808,7 @@ select.pixel-select {
     .giant-points {
         font-size: 18pt !important;
         font-weight: 800 !important;
-        font-family: 'Helvetica Neue', Arial, sans-serif !important;
+        font-family: 'Noto Sans TC', 'Helvetica Neue', Arial, sans-serif !important;
     }
 
     .points-label {

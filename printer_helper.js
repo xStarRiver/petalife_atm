@@ -403,7 +403,8 @@ function printSelfTest() {
     }
 }
 
-// Generate a receipt PDF in memory and return the file path
+// Generate a receipt PDF that matches the screen visualization exactly
+// Paper: 80mm x 223.40mm  |  Content zone: top:25mm left:7.5mm right:7.5mm bottom:35mm
 function generateReceiptPDF(user) {
     return new Promise((resolve, reject) => {
         const os = require('os');
@@ -418,76 +419,193 @@ function generateReceiptPDF(user) {
         }).replace(/\//g, '-');
 
         const progressCount = user.progress || 0;
-        let progressStr = '';
-        for (let i = 0; i < 8; i++) {
-            progressStr += i < progressCount ? '■ ' : '□ ';
-        }
 
         const displayId = user.displayId || (user.id ? user.id.substring(0, 6).toUpperCase() : '------');
         const petName = user.petName || 'Mochi';
         const petCategory = user.petCategory || 'Dog';
         const petBreed = user.petBreed || 'Poodle';
-        const points = user.points || 0;
-        const pointsToday = user.pointsDeposited || 0;
-        const trackingDay = user.trackingDay || 1;
-        const stoolType = user.stoolType || 'Type 4';
-        const condition = user.condition || 'Healthy';
+        const points = user.points !== undefined ? user.points : 0;
+        const pointsToday = user.pointsDeposited !== undefined ? user.pointsDeposited : 0;
+        const trackingDay = user.trackingDay ? `Day ${user.trackingDay}` : 'N/A';
+        const stoolType = user.stoolType || 'N/A';
+        const condition = user.condition || 'N/A';
 
-        // Create a small receipt-sized PDF (80mm wide x auto height)
+        // mm to points conversion: 1mm = 2.8346pt
+        const mmToPt = 2.8346;
+        const paperW = Math.round(80 * mmToPt);        // 227pt = 80mm width
+        const paperH = Math.round(223.40 * mmToPt);    // 633pt = 223.40mm height
+
+        // Pre-printed paper layout:
+        //   Top ~15mm: "便便銀行 | POOP BANK" header (pre-printed)
+        //   Bottom ~50mm: Dog graphic + QR code + Petalife logo (pre-printed)
+        //   Middle: Blank area for receipt content (~158mm)
+        const marginTop = Math.round(15 * mmToPt);     // 43pt - clear the pre-printed header
+        const marginLeft = Math.round(7 * mmToPt);     // 20pt
+        const marginRight = Math.round(7 * mmToPt);    // 20pt
+        const marginBottom = Math.round(50 * mmToPt);  // 142pt - clear the pre-printed footer
+
         const doc = new PDFDocument({
-            size: [226, 500], // ~80mm x ~176mm at 72dpi
-            margins: { top: 15, bottom: 15, left: 15, right: 15 }
+            size: [paperW, paperH],
+            margins: { top: marginTop, bottom: marginBottom, left: marginLeft, right: marginRight }
         });
 
         const stream = fs.createWriteStream(filePath);
         doc.pipe(stream);
 
-        // Header
-        doc.fontSize(14).font('Helvetica-Bold').text('PETALIFE', { align: 'center' });
-        doc.fontSize(10).font('Helvetica-Bold').text('POOP BANK', { align: 'center' });
-        doc.moveDown(0.3);
-        doc.fontSize(9).font('Helvetica').text('DEPOSIT RECEIPT', { align: 'center' });
-        doc.moveDown(0.3);
-        doc.fontSize(7).text('================================', { align: 'center' });
-        doc.moveDown(0.3);
+        // Register Noto Sans TC font (Traditional Chinese support)
+        // Check bundled font first (packaged Electron app), then local dev, then system
+        const fontCandidates = [
+            path.join(process.resourcesPath || '', 'fonts', 'NotoSansTC-VF.ttf'),  // packaged app
+            path.join(__dirname, 'fonts', 'NotoSansTC-VF.ttf'),                     // dev mode
+            'C:\\Windows\\Fonts\\NotoSansTC-VF.ttf'                                  // system fallback
+        ];
+        let notoFontPath = null;
+        for (const candidate of fontCandidates) {
+            if (fs.existsSync(candidate)) {
+                notoFontPath = candidate;
+                console.log(`[Font] Using Noto Sans TC from: ${candidate}`);
+                break;
+            }
+        }
+        const hasNotoFont = notoFontPath !== null;
 
-        // User info
-        const leftX = 15;
-        doc.fontSize(8).font('Helvetica');
-        doc.text(`Username : ${user.name || '---'}`, leftX);
-        doc.text(`User ID  : ${displayId}`, leftX);
-        doc.text(`Pet Name : ${petName}`, leftX);
-        doc.text(`Category : ${petCategory.toUpperCase()}`, leftX);
-        doc.text(`Breed    : ${petBreed.toUpperCase()}`, leftX);
-        doc.text(`Date     : ${dateStr}`, leftX);
-        doc.moveDown(0.3);
-        doc.fontSize(7).text('--------------------------------', leftX);
-        doc.moveDown(0.3);
+        if (hasNotoFont) {
+            doc.registerFont('NotoSansTC', notoFontPath);
+        } else {
+            console.warn('[Font] NotoSansTC-VF.ttf not found! Chinese characters will not render.');
+        }
 
-        // Account Summary
-        doc.fontSize(9).font('Helvetica-Bold').text('ACCOUNT SUMMARY', leftX);
-        doc.fontSize(8).font('Helvetica');
-        doc.text(`P-Coins  : ${points}`, leftX);
-        doc.text(`Today    : +${pointsToday} deposited`, leftX);
-        doc.text(`Tracking : Day ${trackingDay}`, leftX);
-        doc.text(`Progress : ${progressStr.trim()}`, leftX);
-        doc.moveDown(0.3);
-        doc.fontSize(7).text('--------------------------------', leftX);
-        doc.moveDown(0.3);
+        // Font — use Noto Sans TC for everything (supports Chinese + English)
+        const fontName = hasNotoFont ? 'NotoSansTC' : 'Helvetica';
 
-        // Deposit Details
-        doc.fontSize(9).font('Helvetica-Bold').text('DEPOSIT DETAILS', leftX);
-        doc.fontSize(8).font('Helvetica');
-        doc.text(`Stool    : ${stoolType}`, leftX);
-        doc.text(`Condition: ${condition}`, leftX);
-        doc.moveDown(0.3);
-        doc.fontSize(7).text('--------------------------------', leftX);
-        doc.moveDown(0.3);
+        const contentW = paperW - marginLeft - marginRight; // ~185pt = 65mm
+        const leftX = marginLeft;
+        const lineGap = 2;
 
-        // Footer
-        doc.fontSize(8).font('Helvetica').text('Thank you for using PetaLife!', { align: 'center' });
-        doc.moveDown(0.5);
-        doc.fontSize(7).text(`ID: ${user.id || '---'}`, { align: 'center' });
+        // Helper: render bold text by drawing twice with tiny offset
+        function textBold(text, x, y, options = {}) {
+            if (y !== undefined) {
+                doc.text(text, x, y, options);
+                const afterY = doc.y;
+                doc.text(text, x + 0.3, y, options);
+                doc.y = afterY;
+            } else {
+                const curY = doc.y;
+                doc.text(text, x, curY, options);
+                const afterY = doc.y;
+                doc.text(text, x + 0.3, curY, options);
+                doc.y = afterY;
+            }
+        }
+
+        // Helper: dotted divider line
+        function drawDottedDivider() {
+            const y = doc.y + 3;
+            doc.save();
+            doc.strokeColor('#999999').lineWidth(0.5)
+               .dash(2, { space: 2 })
+               .moveTo(leftX, y).lineTo(leftX + contentW, y).stroke();
+            doc.restore();
+            doc.y = y + 6;
+        }
+
+        // Helper: draw progress blocks as filled/empty squares
+        function drawProgressBlocks(x, y, count, total) {
+            const blockSize = 8;
+            const gap = 4;
+            for (let i = 0; i < total; i++) {
+                const bx = x + i * (blockSize + gap);
+                if (i < count) {
+                    doc.save().rect(bx, y, blockSize, blockSize).fill('#333333').restore();
+                } else {
+                    doc.save().rect(bx, y, blockSize, blockSize).lineWidth(0.5).stroke('#999999').restore();
+                }
+            }
+            doc.y = y + blockSize + 4;
+        }
+
+        // Helper: render a bold label + regular value on same line
+        function labelValue(label, value, opts = {}) {
+            const ly = doc.y;
+            doc.font(fontName).fontSize(opts.fontSize || 7);
+            const labelW = doc.widthOfString(label);
+            // Bold label (draw twice)
+            doc.text(label, leftX, ly, { width: labelW + 1, lineGap });
+            doc.text(label, leftX + 0.3, ly, { width: labelW + 1, lineGap });
+            // Regular value
+            doc.text(value, leftX + labelW, ly, { lineGap });
+        }
+
+        // ─── SECTION 1: DEPOSIT RECEIPT TITLE ───
+        doc.fontSize(9).font(fontName);
+        textBold('DEPOSIT RECEIPT', leftX, marginTop, {
+            width: contentW,
+            align: 'center'
+        });
+        doc.moveDown(0.2);
+        drawDottedDivider();
+
+        // ─── SECTION 2: USER INFO (bold labels) ───
+        labelValue('Username : ', user.name || '---', { fontSize: 7 });
+        labelValue('User ID  : ', displayId, { fontSize: 7 });
+        labelValue('Pet Name : ', petName, { fontSize: 7 });
+        labelValue('Category : ', petCategory.toUpperCase(), { fontSize: 7 });
+        labelValue('Breed    : ', petBreed.toUpperCase(), { fontSize: 7 });
+        labelValue('Date     : ', dateStr, { fontSize: 7 });
+        doc.moveDown(0.15);
+        drawDottedDivider();
+
+        // ─── SECTION 3: ACCOUNT SUMMARY ───
+        doc.fontSize(8).font(fontName);
+        textBold('ACCOUNT SUMMARY', leftX);
+        doc.moveDown(0.2);
+        // Big bold points number + P-Coins label
+        const pointsY = doc.y;
+        doc.fontSize(16).font(fontName);
+        textBold(`${points}`, leftX, pointsY);
+        const pointsTextWidth = doc.widthOfString(`${points}`, { fontSize: 16 });
+        doc.fontSize(7).font(fontName);
+        textBold('P-Coins', leftX + pointsTextWidth + 3, pointsY + 7);
+        doc.y = pointsY + 18;
+        doc.fontSize(6.5).font(fontName).text(`+${pointsToday} P-Coins deposited today`, leftX);
+        doc.moveDown(0.15);
+        drawDottedDivider();
+        labelValue('Tracking day : ', trackingDay, { fontSize: 7 });
+        // Progress blocks (drawn as actual squares)
+        const progressY = doc.y + 2;
+        doc.fontSize(7).font(fontName);
+        textBold('Progress : ', leftX, doc.y);
+        drawProgressBlocks(leftX + 48, progressY, progressCount, 8);
+        doc.moveDown(0.15);
+        drawDottedDivider();
+
+        // ─── SECTION 4: DEPOSIT DETAILS ───
+        doc.fontSize(8).font(fontName);
+        textBold('DEPOSIT DETAILS', leftX);
+        doc.moveDown(0.15);
+        labelValue('Stool Type : ', stoolType, { fontSize: 7 });
+        labelValue('Condition  : ', condition, { fontSize: 7 });
+        doc.moveDown(0.15);
+        drawDottedDivider();
+
+        // ─── SECTION 5: REWARD CREDITED ───
+        doc.fontSize(8).font(fontName);
+        textBold('已解鎖獎勵 REWARD CREDITED', leftX);
+        doc.moveDown(0.15);
+        doc.fontSize(6.5).font(fontName);
+        doc.text('免費寵物自拍館拍攝體驗（電子版）', leftX, doc.y, { lineGap: 1 });
+        doc.text('(Free Pet Photobooth Session - Digital Version)', { lineGap: 1 });
+        doc.moveDown(0.15);
+        drawDottedDivider();
+
+        // ─── SECTION 6: NEXT STEP ───
+        doc.fontSize(8).font(fontName);
+        textBold('下一步任務 NEXT STEP', leftX);
+        doc.moveDown(0.15);
+        doc.fontSize(6.5).font(fontName);
+        doc.text('持續每日掃描便便，解鎖更多豐富獎賞：', leftX, doc.y, { lineGap: 1 });
+        doc.text('→ 累積滿 600 P-coins 即可贏取 Dyson 寵物家電！', { lineGap: 1, width: contentW });
+        doc.text('→ 連續打卡14日解鎖 Purina 專業寵物糧！', { lineGap: 1, width: contentW });
 
         doc.end();
 
@@ -503,6 +621,13 @@ async function silentPrintReceipt(user) {
     }
 
     try {
+        // Check if the printer is actually available before printing
+        const printerCheck = await checkPrinterAvailable(directPrinterName);
+        if (!printerCheck.available) {
+            console.error(`[Direct Print] Printer not available: ${printerCheck.reason}`);
+            return { success: false, message: printerCheck.reason };
+        }
+
         console.log(`[Direct Print] Generating PDF for ${user.petName || 'Unknown'}...`);
         const pdfPath = await generateReceiptPDF(user);
         console.log(`[Direct Print] PDF generated: ${pdfPath}`);
@@ -514,7 +639,8 @@ async function silentPrintReceipt(user) {
         console.log(`[Direct Print] Sending to printer: ${directPrinterName}`);
         await print(pdfPath, {
             printer: directPrinterName,
-            silent: true
+            silent: true,
+            scale: 'noscale'
         });
 
         // Clean up temp file after a delay
@@ -528,6 +654,40 @@ async function silentPrintReceipt(user) {
         console.error('[Direct Print] Error:', err);
         return { success: false, message: `Direct Print Error: ${err.message}` };
     }
+}
+
+// Check if a Windows printer is available and online
+async function checkPrinterAvailable(printerName) {
+    const { exec } = require('child_process');
+    return new Promise((resolve) => {
+        // Use PowerShell to check printer status
+        const cmd = `powershell -Command "try { $p = Get-Printer -Name '${printerName.replace(/'/g, "''")}' -ErrorAction Stop; Write-Output \\"STATUS:$($p.PrinterStatus)\\" } catch { Write-Output 'NOT_FOUND' }"`;
+        exec(cmd, { timeout: 5000 }, (err, stdout) => {
+            if (err) {
+                resolve({ available: false, reason: `Cannot check printer: ${err.message}` });
+                return;
+            }
+            const output = stdout.trim();
+            if (output === 'NOT_FOUND') {
+                resolve({ available: false, reason: `Printer "${printerName}" not found on this system. Please check settings.` });
+                return;
+            }
+            // Parse status
+            const statusMatch = output.match(/STATUS:(.*)/);
+            if (statusMatch) {
+                const status = statusMatch[1].trim();
+                // Normal = ready, Paused/Error/Offline = not available
+                if (status === 'Normal' || status === '0') {
+                    resolve({ available: true });
+                } else {
+                    resolve({ available: false, reason: `Printer "${printerName}" is ${status}. Please check the printer connection.` });
+                }
+            } else {
+                // Can't parse, try anyway
+                resolve({ available: true });
+            }
+        });
+    });
 }
 
 // List system printers using pdf-to-printer
@@ -553,5 +713,6 @@ module.exports = {
     printSelfTest,
     silentPrintReceipt,
     listSystemPrinters,
+    checkPrinterAvailable,
     getDirectPrinterName: () => directPrinterName
 };

@@ -591,6 +591,19 @@ app.get('/api/printer/system-list', async (req, res) => {
     }
 });
 
+// Check if configured printer is available and online
+app.get('/api/printer/check-available', async (req, res) => {
+    const printerName = printer.getDirectPrinterName();
+    if (!printerName) {
+        return res.json({ available: false, reason: 'No printer configured. Please connect a printer in settings.' });
+    }
+    try {
+        const result = await printer.checkPrinterAvailable(printerName);
+        res.json(result);
+    } catch (err) {
+        res.json({ available: false, reason: err.message });
+    }
+});
 
 // WebSocket Server Connection Handler
 wss.on('connection', (ws, req) => {
