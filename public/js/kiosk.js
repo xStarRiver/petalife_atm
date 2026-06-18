@@ -84,6 +84,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const printReceiptBtn = document.getElementById('printReceiptBtn');
     const resetSessionBtn = document.getElementById('resetSessionBtn');
 
+    // Spacing Adjustments
+    const printMarginTop = document.getElementById('printMarginTop');
+    const printMarginBottom = document.getElementById('printMarginBottom');
+    const printPaperHeight = document.getElementById('printPaperHeight');
+    const printSkipNextStep = document.getElementById('printSkipNextStep');
+
     // Audio context or synthesized sound effects for maximum retro immersion
     function playBeep(freq = 800, duration = 0.1) {
         try {
@@ -106,6 +112,80 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --------------------------------------------------
+    // Spacing & Margin Adjustments Persistence & Application
+    // --------------------------------------------------
+    function savePrintAdjustments() {
+        const adjustments = {
+            marginTop: parseInt(printMarginTop.value) || 20,
+            marginBottom: parseInt(printMarginBottom.value) || 55,
+            paperHeight: parseFloat(printPaperHeight.value) || 200.40,
+            skipNextStep: printSkipNextStep.checked
+        };
+        localStorage.setItem('petalife_print_adjustments', JSON.stringify(adjustments));
+        applyPrintAdjustmentsToUI(adjustments);
+    }
+
+    function loadPrintAdjustments() {
+        const stored = localStorage.getItem('petalife_print_adjustments');
+        let adjustments = { marginTop: 20, marginBottom: 55, paperHeight: 200.40, skipNextStep: true };
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                adjustments = parsed;
+                // Migrate old defaults (15/50) to new defaults (20/55)
+                if (parsed.marginTop === 15) adjustments.marginTop = 20;
+                if (parsed.marginBottom === 50) adjustments.marginBottom = 55;
+                // Add paperHeight if not present (migration from older versions)
+                if (!parsed.paperHeight) adjustments.paperHeight = 200.40;
+                // Re-save if migrated
+                if (parsed.marginTop === 15 || parsed.marginBottom === 50 || !parsed.paperHeight) {
+                    localStorage.setItem('petalife_print_adjustments', JSON.stringify(adjustments));
+                }
+            } catch (e) {}
+        }
+        
+        if (printMarginTop) printMarginTop.value = adjustments.marginTop;
+        if (printMarginBottom) printMarginBottom.value = adjustments.marginBottom;
+        if (printPaperHeight) printPaperHeight.value = adjustments.paperHeight;
+        if (printSkipNextStep) printSkipNextStep.checked = adjustments.skipNextStep;
+        
+        applyPrintAdjustmentsToUI(adjustments);
+    }
+
+    function applyPrintAdjustmentsToUI(adjustments) {
+        if (!paperReceipt) return;
+        
+        if (adjustments.skipNextStep) {
+            paperReceipt.classList.add('receipt-skip-next-step');
+        } else {
+            paperReceipt.classList.remove('receipt-skip-next-step');
+        }
+        
+        // Apply margins dynamically using CSS Variables (for screen preview and print stylesheet)
+        paperReceipt.style.setProperty('--print-top-margin', `${adjustments.marginTop}mm`);
+        paperReceipt.style.setProperty('--print-bottom-margin', `${adjustments.marginBottom}mm`);
+        
+        // Scale by 4px per mm for on-screen visualization
+        paperReceipt.style.setProperty('--screen-top-margin', `${adjustments.marginTop * 4}px`);
+        paperReceipt.style.setProperty('--screen-bottom-margin', `${adjustments.marginBottom * 4}px`);
+    }
+
+    function getPrintOptions() {
+        return {
+            marginTop: parseInt(printMarginTop.value) || 20,
+            marginBottom: parseInt(printMarginBottom.value) || 55,
+            paperHeight: parseFloat(printPaperHeight.value) || 200.40,
+            skipNextStep: printSkipNextStep.checked
+        };
+    }
+
+    // Real-time preview feedback when modifying settings values
+    if (printMarginTop) printMarginTop.addEventListener('input', () => { savePrintAdjustments(); });
+    if (printMarginBottom) printMarginBottom.addEventListener('input', () => { savePrintAdjustments(); });
+    if (printPaperHeight) printPaperHeight.addEventListener('input', () => { savePrintAdjustments(); });
+    if (printSkipNextStep) printSkipNextStep.addEventListener('change', () => { savePrintAdjustments(); });
+
+    // --------------------------------------------------
     // 1. Live Clock
     // --------------------------------------------------
     setInterval(() => {
@@ -115,6 +195,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const secs = String(now.getSeconds()).padStart(2, '0');
         liveClock.textContent = `${hrs}:${mins}:${secs}`;
     }, 1000);
+
+    // --------------------------------------------------
+    // 1b. Fullscreen Toggle
+    // --------------------------------------------------
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', () => {
+            playBeep(600, 0.05);
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        });
+
+        // Keep icon in sync (e.g. user presses Esc to exit fullscreen)
+        document.addEventListener('fullscreenchange', () => {
+            const icon = fullscreenBtn.querySelector('i');
+            if (document.fullscreenElement) {
+                icon.className = 'fa-solid fa-compress';
+                fullscreenBtn.title = 'Exit Fullscreen';
+            } else {
+                icon.className = 'fa-solid fa-expand';
+                fullscreenBtn.title = 'Toggle Fullscreen';
+            }
+        });
+    }
 
     // --------------------------------------------------
     // 2. Initialize Session & Generate QR Code
@@ -591,6 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 activePrinterSettings = connectionString;
+                savePrintAdjustments(); // save alignment adjustments
                 playBeep(1000, 0.1);
                 setTimeout(() => playBeep(1200, 0.1), 100);
                 showToast('PRINTER INSTALLED!', 'success');
@@ -685,10 +793,11 @@ document.addEventListener('DOMContentLoaded', () => {
             printReceiptBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> PRINTING...';
             showToast('SENDING TO PRINTER...', 'success');
             try {
+                const printOptions = getPrintOptions();
                 const res = await fetch(getApiRoot('/api/printer/silent-print'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user: currentUser })
+                    body: JSON.stringify({ user: currentUser, printOptions })
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -724,10 +833,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setTimeout(async () => {
             try {
+                const printOptions = getPrintOptions();
                 const res = await fetch(getApiRoot('/api/printer/print'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user: currentUser })
+                    body: JSON.stringify({ user: currentUser, printOptions })
                 });
                 const data = await res.json();
 
@@ -763,6 +873,19 @@ document.addEventListener('DOMContentLoaded', () => {
             printerInterface.dispatchEvent(new Event('change'));
         });
     });
+
+    // Idle screen settings button (same action)
+    const idleSettingsBtn = document.getElementById('idleSettingsBtn');
+    if (idleSettingsBtn) {
+        idleSettingsBtn.addEventListener('click', () => {
+            playBeep(800, 0.05);
+            settingsModal.classList.add('active');
+            updatePrinterStatus().then(() => {
+                printerInterface.dispatchEvent(new Event('change'));
+            });
+        });
+    }
+
 
     closeSettingsBtn.addEventListener('click', () => {
         playBeep(500, 0.05);
@@ -950,4 +1073,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // Bootstrap init
     initializeSession();
     updatePrinterStatus();
+    loadPrintAdjustments();
 });

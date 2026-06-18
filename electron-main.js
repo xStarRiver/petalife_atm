@@ -13,20 +13,27 @@ const isKiosk = process.env.KIOSK_MODE === 'true';
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 500,
-        height: 900,
+        height: 932,
+        minWidth: 380,
+        minHeight: 700,
         fullscreen: isKiosk,
         kiosk: isKiosk,
         autoHideMenuBar: true,
-        frame: true,
-        resizable: true,
+        frame: !isKiosk,
+        resizable: !isKiosk,
+        backgroundColor: '#FFF9E6', // Match idle screen gradient to prevent white flash
+        titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true
         }
     });
 
+    // Clear cache to ensure fresh content during development
+    mainWindow.webContents.session.clearCache();
+
     // Load the kiosk page from the internal Express server
-    mainWindow.loadURL(`http://localhost:${PORT}/kiosk.html`);
+    mainWindow.loadURL(`http://localhost:${PORT}/kiosk.html?t=${Date.now()}`);
 
     // In kiosk mode, prevent accidental closing (use Ctrl+Shift+Q)
     if (isKiosk) {
@@ -42,10 +49,13 @@ function createWindow() {
     });
 
     // Disable right-click context menu in kiosk mode
-    mainWindow.webContents.on('context-menu', (e) => {
-        e.preventDefault();
-    });
+    if (isKiosk) {
+        mainWindow.webContents.on('context-menu', (e) => {
+            e.preventDefault();
+        });
+    }
 }
+
 
 app.whenReady().then(() => {
     createWindow();

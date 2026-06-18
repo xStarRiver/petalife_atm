@@ -27,7 +27,7 @@
 }
 
 body {
-    background-color: var(--pixel-bg-body);
+    background-color: #FFF9E6;
     font-family: var(--font-body);
     color: var(--pixel-charcoal);
     min-height: 100vh;
@@ -35,9 +35,17 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 16px;
+    padding: 0;
+    padding-top: env(titlebar-area-height, 0px);
     font-size: 1.5rem; /* Larger font size since VT323 is compressed */
+    -webkit-app-region: drag; /* Allow Electron window drag from body */
 }
+
+/* Make interactive elements non-draggable in Electron */
+button, input, select, a, .pixel-scanner-zone, .idle-brand-badge {
+    -webkit-app-region: no-drag;
+}
+
 
 /* Big Grid Background Overlay for absolute pixel vibes */
 body::before {
@@ -55,12 +63,13 @@ body::before {
 /* Primary Container Frame */
 .kiosk-pixel-container {
     width: 100%;
-    height: calc(100vh - 32px);
+    height: 100vh;
     display: flex;
     flex-direction: column;
     z-index: 10;
     position: relative;
 }
+
 
 /* Pixel Header */
 .pixel-header {
@@ -187,6 +196,13 @@ body::before {
     pointer-events: auto;
 }
 
+/* Idle screen: full-bleed yellow gradient, no card frame */
+#idleScreen.pixel-screen-card {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
 .pixel-screen-content {
     padding: 30px;
     flex-grow: 1;
@@ -196,123 +212,153 @@ body::before {
     align-items: center;
 }
 
-/* Idle Fullscreen Layout */
+
+/* ============================================================
+ * IDLE SCREEN - Responsive full-height layout
+ * Gradient: warm golden yellow → cream white
+ * ============================================================ */
 .idle-fullscreen {
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    gap: 28px;
-    background: radial-gradient(ellipse at center, rgba(0, 184, 148, 0.03) 0%, transparent 70%);
+    gap: 0;
+    background: linear-gradient(180deg, 
+        #FFE494 0%, 
+        #FFF0C0 25%,
+        #FFF8E0 50%, 
+        #FFFDF5 75%,
+        #ffffff 100%);
     position: relative;
     overflow: hidden;
+    padding: 0 !important;
+    min-height: 100%;
 }
 
-/* Floating Decorative Paw Prints */
-.idle-floating-decor {
+/* ===== TOP PETS ROW - Split at corners like reference ===== */
+.idle-pets-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0;
+    z-index: 5;
+    position: relative;
+}
+
+.idle-pets-left {
+    width: 42%;
+    max-width: 200px;
+    height: auto;
+    transform: scaleX(1);
+    image-rendering: auto;
+}
+
+.idle-pets-right {
+    width: 42%;
+    max-width: 200px;
+    height: auto;
+    transform: scaleX(-1);
+    image-rendering: auto;
+}
+
+/* ===== SETTINGS BUTTON (top-right) ===== */
+.idle-settings-btn {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 0;
-}
-
-.float-paw {
-    position: absolute;
-    color: #FFD13A;
-    opacity: 0.15;
-    animation: floatDrift 8s infinite ease-in-out;
-}
-
-.float-paw.p1 {
-    top: 8%; left: 6%;
-    font-size: 3rem;
-    transform: rotate(-25deg);
-    animation-delay: 0s;
-    animation-duration: 7s;
-}
-
-.float-paw.p2 {
-    top: 15%; right: 8%;
-    font-size: 2rem;
-    transform: rotate(15deg);
-    animation-delay: 1.5s;
-    animation-duration: 9s;
-}
-
-.float-paw.p3 {
-    bottom: 20%; left: 10%;
-    font-size: 2.5rem;
-    transform: rotate(30deg);
-    animation-delay: 3s;
-    animation-duration: 8s;
-}
-
-.float-paw.p4 {
-    bottom: 12%; right: 12%;
-    font-size: 3.5rem;
-    transform: rotate(-10deg);
-    animation-delay: 2s;
-    animation-duration: 10s;
-}
-
-.float-paw.p5 {
-    top: 50%; left: 85%;
-    font-size: 1.8rem;
-    transform: rotate(40deg);
-    animation-delay: 4s;
-    animation-duration: 7.5s;
-}
-
-@keyframes floatDrift {
-    0%, 100% { transform: translateY(0px) rotate(var(--r, 0deg)); opacity: 0.15; }
-    25% { transform: translateY(-12px) rotate(var(--r, 0deg)); opacity: 0.22; }
-    50% { transform: translateY(-6px) rotate(var(--r, 0deg)); opacity: 0.18; }
-    75% { transform: translateY(-14px) rotate(var(--r, 0deg)); opacity: 0.12; }
-}
-
-/* Idle Screen Specific elements */
-.pixel-instruction-block {
-    text-align: center;
-    margin-bottom: 0;
-    animation: fadeSlideIn 0.8s ease-out both;
-}
-
-@keyframes fadeSlideIn {
-    0% { opacity: 0; transform: translateY(-20px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-.pixel-badge {
-    display: inline-block;
-    background-color: var(--pixel-yellow);
-    border: 3px solid var(--pixel-charcoal);
-    font-family: var(--font-heading);
-    font-size: 0.85rem;
-    font-weight: 800;
-    padding: 6px 20px;
-    margin-bottom: 16px;
-    box-shadow: 2px 2px 0 var(--pixel-charcoal);
-    animation: badgePulse 3s infinite ease-in-out;
-}
-
-@keyframes badgePulse {
-    0%, 100% { transform: scale(1); box-shadow: 2px 2px 0 var(--pixel-charcoal); }
-    50% { transform: scale(1.05); box-shadow: 3px 3px 0 var(--pixel-charcoal), 0 0 12px rgba(253, 203, 110, 0.4); }
-}
-
-.pixel-instruction-block h1 {
-    font-family: var(--font-heading);
-    font-size: 2.4rem;
-    margin-bottom: 16px;
-    letter-spacing: -1px;
-    animation: fadeSlideIn 0.8s ease-out 0.2s both;
-}
-
-.pixel-instruction-block p {
+    top: 12px;
+    right: 12px;
+    z-index: 99;
+    background: rgba(255, 255, 255, 0.7);
+    border: 2px solid rgba(37, 36, 34, 0.2);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
     color: var(--pixel-charcoal);
-    font-size: 1.8rem;
-    max-width: 600px;
-    margin: 0 auto;
-    animation: fadeSlideIn 0.8s ease-out 0.4s both;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    -webkit-app-region: no-drag;
+}
+
+.idle-settings-btn:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.9);
+    transform: rotate(45deg);
+}
+
+/* ===== FLOATING PIXEL ART DECORATIONS ===== */
+.deco-float {
+    position: absolute;
+    pointer-events: none;
+    z-index: 2;
+    height: auto;
+    opacity: 0.85;
+    animation: emojiFloat 7s ease-in-out infinite;
+    image-rendering: auto;
+}
+
+.deco-float:nth-child(odd) {
+    animation-duration: 6s;
+}
+
+.deco-float:nth-child(even) {
+    animation-duration: 8s;
+    animation-delay: 1s;
+}
+
+@keyframes emojiFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* ===== MAIN CONTENT: Receipt + Title stacked ===== */
+.idle-main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 5;
+    padding: 6px 10px;
+}
+
+.idle-receipt-small {
+    width: 35%;
+    max-width: 180px;
+    height: auto;
+    image-rendering: auto;
+    filter: drop-shadow(1px 2px 4px rgba(0,0,0,0.1));
+}
+
+.idle-title-large {
+    height: 110px;
+    width: auto;
+    image-rendering: auto;
+    filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.1));
+}
+
+
+
+/* ===== CENTRAL SCAN SECTION (vertically centered) ===== */
+.idle-scan-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 5;
+    padding: 10px 0;
+    margin: auto 0;
+}
+
+.idle-scan-label {
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    color: var(--pixel-charcoal);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 2px;
 }
 
 /* Scanner Display - Animated Scanner Frame */
@@ -320,104 +366,53 @@ body::before {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
-    animation: fadeSlideIn 0.8s ease-out 0.6s both;
-}
-
-/* Decorative Coins Image - Above Welcome */
-.idle-decor-coins {
-    width: 72px;
-    height: auto;
-    image-rendering: pixelated;
-    animation: floatCoin 3.5s ease-in-out infinite;
-    filter: drop-shadow(3px 3px 0 var(--pixel-charcoal));
-    z-index: 2;
-}
-
-@keyframes floatCoin {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
 }
 
 .scanner-frame {
-    width: 220px;
-    height: 220px;
+    width: 120px;
+    height: 120px;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: floatScanner 4s ease-in-out infinite;
-}
-
-@keyframes floatScanner {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
 }
 
 .scanner-frame-corner {
     position: absolute;
-    width: 32px;
-    height: 32px;
-    border-color: #FFD13A;
+    width: 24px;
+    height: 24px;
+    border-color: #D4A017;
     border-style: solid;
     transition: all 0.3s ease;
-    animation: cornerGlow 2.5s infinite alternate ease-in-out;
-}
-
-@keyframes cornerGlow {
-    0% { 
-        border-color: #FFD13A;
-        filter: drop-shadow(0 0 2px rgba(255, 209, 58, 0.3));
-    }
-    100% { 
-        border-color: #FFD13A;
-        filter: drop-shadow(0 0 8px rgba(255, 209, 58, 0.7));
-    }
 }
 
 .scanner-frame-corner.tl {
     top: 0; left: 0;
-    border-width: 5px 0 0 5px;
-    animation-delay: 0s;
+    border-width: 3px 0 0 3px;
 }
 
 .scanner-frame-corner.tr {
     top: 0; right: 0;
-    border-width: 5px 5px 0 0;
-    animation-delay: 0.3s;
+    border-width: 3px 3px 0 0;
 }
 
 .scanner-frame-corner.bl {
     bottom: 0; left: 0;
-    border-width: 0 0 5px 5px;
-    animation-delay: 0.6s;
+    border-width: 0 0 3px 3px;
 }
 
 .scanner-frame-corner.br {
     bottom: 0; right: 0;
-    border-width: 0 5px 5px 0;
-    animation-delay: 0.9s;
-}
-
-.scanner-center-icon {
-    font-size: 5rem;
-    color: #FFD13A;
-    opacity: 0.2;
-    animation: pulseIcon 2.5s infinite alternate ease-in-out;
-}
-
-@keyframes pulseIcon {
-    0% { opacity: 0.1; transform: scale(0.9); filter: drop-shadow(0 0 0px transparent); }
-    100% { opacity: 0.3; transform: scale(1.08); filter: drop-shadow(0 0 12px rgba(255, 209, 58, 0.4)); }
+    border-width: 0 3px 3px 0;
 }
 
 .scanner-laser-sweep {
     position: absolute;
     left: 8px;
     right: 8px;
-    height: 3px;
+    height: 2px;
     background: linear-gradient(90deg, transparent, var(--pixel-red), var(--pixel-red), transparent);
-    box-shadow: 0 0 10px var(--pixel-red), 0 0 20px rgba(214, 48, 49, 0.4), 0 0 40px rgba(214, 48, 49, 0.1);
+    box-shadow: 0 0 6px var(--pixel-red), 0 0 12px rgba(214, 48, 49, 0.3);
     animation: laserSweepVertical 2.5s infinite ease-in-out;
     z-index: 5;
     border-radius: 2px;
@@ -425,72 +420,90 @@ body::before {
 
 @keyframes laserSweepVertical {
     0%, 100% { top: 8px; opacity: 0.9; }
-    50% { top: calc(100% - 12px); opacity: 1; }
+    50% { top: calc(100% - 10px); opacity: 1; }
 }
 
-/* Waiting indicator with blinking cursor effect */
+/* Waiting indicator */
 .pixel-waiting-indicator {
     font-family: var(--font-heading);
-    font-size: 0.72rem;
+    font-size: 0.6rem;
     color: var(--pixel-charcoal);
     animation: blinkText 1.5s infinite steps(2);
+    letter-spacing: 1px;
 }
 
 @keyframes blinkText {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    50% { opacity: 0.3; }
 }
 
-/* QR Code Section */
-.pixel-qr-section {
+/* ===== BOTTOM SECTION (pinned to bottom) ===== */
+.idle-bottom-section {
+    margin-top: auto;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    z-index: 5;
+    padding-bottom: 16px;
 }
 
-.pixel-qr-border {
-    background: white;
-    padding: 12px;
-    border: 4px solid #FFD13A;
-    box-shadow: 6px 6px 0 var(--pixel-charcoal);
+/* ===== HERO BLOCK - Poop Bank ATM Illustration ===== */
+.idle-hero-block {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    z-index: 5;
 }
 
-#qrcode img {
-    display: block;
-    width: 180px;
-    height: 180px;
+.idle-hero-img {
+    width: 80%;
+    max-width: 400px;
+    height: auto;
+    image-rendering: auto;
+    filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.1));
 }
 
+/* ===== PETALIFE BRAND BADGE (top center) ===== */
+.idle-brand-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 0 4px 0;
+    z-index: 10;
+    width: 100%;
+}
 
+.brand-badge-img {
+    height: 48px;
+    width: auto;
+    image-rendering: auto;
+    filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.1));
+}
 
 /* Scanner Zone */
 .pixel-scanner-zone {
-    margin-top: 0;
-    background-color: #eae3d2;
-    border: 3px dashed var(--pixel-charcoal);
-    padding: 16px 28px;
+    margin-top: 4px;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(4px);
+    border: 2px dashed rgba(37, 36, 34, 0.3);
+    padding: 10px 20px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     font-family: var(--font-heading);
-    font-size: 0.72rem;
+    font-size: 0.55rem;
     line-height: 1.4;
-    max-width: 540px;
+    max-width: 400px;
     position: relative;
     overflow: hidden;
-    animation: fadeSlideIn 0.8s ease-out 0.8s both;
-}
-
-
-
-@keyframes scannerLaserSweep {
-    0%, 100% { top: 0%; }
-    50% { top: calc(100% - 4px); }
+    z-index: 5;
+    border-radius: 6px;
 }
 
 .scanner-icon {
-    font-size: 2.2rem;
+    font-size: 1.6rem;
     color: var(--pixel-charcoal);
     animation: pulseScan 1.5s infinite alternate ease-in-out;
 }
@@ -499,6 +512,7 @@ body::before {
     0% { transform: scale(0.95); }
     100% { transform: scale(1.05); }
 }
+
 
 /* Hidden Webcam Scan Button */
 .hidden-webcam-btn {
@@ -568,10 +582,18 @@ body::before {
     display: none;
 }
 
+/* Hide the top header bar when idle screen is showing (full-screen immersive) */
+.kiosk-pixel-container:has(#idleScreen.active) .pixel-header {
+    display: none;
+}
+
+
 /* Make viewport fill the space when header is hidden */
-.kiosk-pixel-container:has(#receiptScreen.active) .pixel-screen-viewport {
+.kiosk-pixel-container:has(#receiptScreen.active) .pixel-screen-viewport,
+.kiosk-pixel-container:has(#idleScreen.active) .pixel-screen-viewport {
     height: 100%;
 }
+
 
 #receiptScreen .pixel-screen-content {
     justify-content: flex-start;
@@ -886,10 +908,10 @@ body::before {
 /* Content area precisely positioned over the paper's white zone */
 .paper-content-area {
     position: absolute;
-    top: 100px;
+    top: var(--screen-top-margin, 100px);
     left: 30px;
     right: 30px;
-    bottom: 140px;
+    bottom: var(--screen-bottom-margin, 140px);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -904,6 +926,11 @@ body::before {
 /* Each receipt section gets equal breathing room */
 .receipt-pixel-section {
     flex-shrink: 0;
+}
+
+/* Skip Next Step Section when pre-printed roll is used */
+.receipt-skip-next-step .next-step-section {
+    display: none !important;
 }
 
 /* Keep old receipt-body styles for backwards compat but hide */
@@ -1117,6 +1144,32 @@ body::before {
 
 .pixel-select:focus, .pixel-input:focus {
     background: #eae3d2;
+}
+
+/* Retro Checkbox style */
+.pixel-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border: 3px solid var(--pixel-charcoal);
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+.pixel-checkbox:checked::after {
+    content: "■";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--pixel-charcoal);
+    font-size: 14px;
+    font-weight: bold;
 }
 
 select.pixel-select {
@@ -1687,11 +1740,12 @@ select.pixel-select {
     
     html, body {
         width: 80mm !important;
-        height: 223.40mm !important;
+        height: auto !important;
+        min-height: 223.40mm !important;
         background: #ffffff !important;
         margin: 0 !important;
         padding: 0 !important;
-        overflow: hidden !important;
+        overflow: visible !important;
         font-size: 10pt !important;
     }
 
@@ -1744,7 +1798,8 @@ select.pixel-select {
     .pixel-paper-receipt {
         display: block !important;
         width: 80mm !important;
-        height: 223.40mm !important;
+        height: auto !important;
+        min-height: 223.40mm !important;
         box-sizing: border-box !important;
         background-image: none !important;
         background-color: transparent !important;
@@ -1755,17 +1810,18 @@ select.pixel-select {
         print-color-adjust: exact !important;
     }
 
-    /* Content area — mm equivalents of screen layout:
-       Screen: top:100px left:30px right:30px bottom:140px on 320×894
-       Print:  top:25mm  left:7.5mm right:7.5mm bottom:35mm on 80×223.40mm */
+    /* Content area — uses flow layout with padding for top/bottom spacing.
+       Top padding pushes content below the pre-printed header.
+       Bottom padding + ::after spacer ensures printer feeds enough paper
+       so the bottom content is not cut off. */
     .paper-content-area {
-        position: absolute !important;
-        top: 25mm !important;
-        left: 7.5mm !important;
-        right: 7.5mm !important;
-        bottom: 35mm !important;
-        padding: 1mm !important;
-        overflow: hidden !important;
+        position: static !important;
+        width: auto !important;
+        padding-top: var(--print-top-margin, 25mm) !important;
+        padding-bottom: var(--print-bottom-margin, 35mm) !important;
+        padding-left: 7.5mm !important;
+        padding-right: 7.5mm !important;
+        overflow: visible !important;
         display: flex !important;
         flex-direction: column !important;
         gap: 3mm !important;
@@ -1773,6 +1829,14 @@ select.pixel-select {
         font-size: 8pt !important;
         color: #1a1a1a !important;
         line-height: 1.35 !important;
+    }
+
+    /* Force blank space at the bottom so printer feeds enough paper */
+    .paper-content-area::after {
+        content: '' !important;
+        display: block !important;
+        height: var(--print-bottom-margin, 35mm) !important;
+        flex-shrink: 0 !important;
     }
 
     /* Receipt title */
